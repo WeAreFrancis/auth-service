@@ -7,7 +7,7 @@ data class ReadUserByAdminDTO(
         val email: String,
         val enabled: Boolean = false,
         override val id: UUID = UUID.randomUUID(),
-        val locked: Boolean,
+        val locked: Boolean = false,
         val role: User.Role = User.Role.ROLE_USER,
         override val username: String
 ) : ReadUserDTO
