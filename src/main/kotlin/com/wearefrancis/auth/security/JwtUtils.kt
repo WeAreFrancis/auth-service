@@ -8,14 +8,12 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.*
 import java.util.*
 
 @Component
 open class JwtUtils(
+        val clock: Clock,
         @Value("\${jwt.expiration}") val expiration: Long,
         @Value("\${jwt.secret}") val secret: String
 ) {
@@ -26,11 +24,19 @@ open class JwtUtils(
     fun generateJwt(user: UserDetails): String = Jwts
             .builder()
             .setClaims(
-                    mapOf(CLAIM_KEY_USERNAME to user.username, CLAIM_KEY_CREATED to LocalDate.now())
+                    mapOf(
+                            CLAIM_KEY_USERNAME to user.username,
+                            CLAIM_KEY_CREATED to LocalDateTime.from(clock.instant().atZone(clock.zone))
+                    )
             )
-            .setExpiration(Date.from(LocalDateTime.now().plusSeconds(expiration).toInstant(ZoneOffset.UTC)))
+            .setExpiration(Date.from(clock.instant().plusSeconds(expiration)))
             .signWith(SignatureAlgorithm.HS512, secret)
             .compact()
+
+    fun getExpirationDateFromJwt(jwt: String): LocalDate {
+        val claims = getClaimsFromJwt(jwt) ?: throw InvalidJwtException("$jwt is invalid")
+        return LocalDate.from(claims.expiration.toInstant().atZone(clock.zone))
+    }
 
     fun getUsernameFromJwt(jwt: String): String {
         val claims = getClaimsFromJwt(jwt) ?: throw InvalidJwtException("$jwt is invalid")
@@ -38,13 +44,12 @@ open class JwtUtils(
     }
 
     fun isValidJwt(jwt: String, user: UserDetails): Boolean {
-        val claims = getClaimsFromJwt(jwt) ?: throw InvalidJwtException("$jwt is invalid")
+        val claims = getClaimsFromJwt(jwt) ?: return false
         return user.isAccountNonExpired
                 && user.isAccountNonLocked
                 && user.isCredentialsNonExpired
                 && user.isEnabled
                 && user.username == claims.subject
-                && claims.expiration.toInstant().isAfter(Instant.now())
     }
 
     private fun getClaimsFromJwt(jwt: String): Claims? {
