@@ -10,9 +10,13 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.util.*
 
 @Component
 open class JwtUtils(
+        @Value("\${jwt.expiration}") val expiration: Long,
         @Value("\${jwt.secret}") val secret: String
 ) {
     companion object {
@@ -24,6 +28,7 @@ open class JwtUtils(
             .setClaims(
                     mapOf(CLAIM_KEY_USERNAME to user.username, CLAIM_KEY_CREATED to LocalDate.now())
             )
+            .setExpiration(Date.from(LocalDateTime.now().plusSeconds(expiration).toInstant(ZoneOffset.UTC)))
             .signWith(SignatureAlgorithm.HS512, secret)
             .compact()
 
