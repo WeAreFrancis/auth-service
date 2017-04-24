@@ -21,7 +21,7 @@ open class JwtUtils(
         val logger = LoggerFactory.getLogger(JwtUtils::class.java)!!
     }
 
-    fun generateJwt(user: UserDetails): String = Jwts
+    open fun generateJwt(user: UserDetails): String = Jwts
             .builder()
             .setClaims(
                     mapOf(
@@ -33,17 +33,17 @@ open class JwtUtils(
             .signWith(SignatureAlgorithm.HS512, secret)
             .compact()
 
-    fun getExpirationDateFromJwt(jwt: String): LocalDate {
+    open fun getExpirationDateFromJwt(jwt: String): LocalDate {
         val claims = getClaimsFromJwt(jwt) ?: throw InvalidJwtException("$jwt is invalid")
         return LocalDate.from(claims.expiration.toInstant().atZone(clock.zone))
     }
 
-    fun getUsernameFromJwt(jwt: String): String {
+    open fun getUsernameFromJwt(jwt: String): String {
         val claims = getClaimsFromJwt(jwt) ?: throw InvalidJwtException("$jwt is invalid")
         return claims.subject
     }
 
-    fun isValidJwt(jwt: String, user: UserDetails): Boolean {
+    open fun isValidJwt(jwt: String, user: UserDetails): Boolean {
         val claims = getClaimsFromJwt(jwt) ?: return false
         return user.isAccountNonExpired
                 && user.isAccountNonLocked
