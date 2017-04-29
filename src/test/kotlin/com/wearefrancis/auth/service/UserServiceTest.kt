@@ -290,6 +290,127 @@ class UserServiceTest {
         verify(readUserByAdminDTOMapper).convert(user)
     }
 
+    @Test
+    fun getByUsernameShouldThrowEntityNotFoundExceptionIfTheUserThatHasTheGivenUsernameIsNotFound() {
+        // GIVEN
+        val username = "gleroy"
+        val currentUser = User()
+
+        try {
+            // WHEN
+            userService.getByUsername(username, currentUser)
+
+            // THEN
+            fail()
+        } catch (exception: EntityNotFoundException) {
+            // THEN
+            assertThat(exception.message).isEqualTo("User $username not found")
+            verify(userRepository).findByUsername(username)
+        }
+    }
+
+    @Test
+    fun getByUsernameShouldReturnReadUserByUserDTOIfCurrentUserIsUser() {
+        // GIVEN
+        val user = User(
+                username = "gleroy"
+        )
+        val currentUser = User()
+        val readUserByUserDTO = ReadUserByUserDTO(
+                id = user.id,
+                username = user.username
+        )
+        whenever(userRepository.findByUsername(user.username)).thenReturn(user)
+        whenever(readUserByUserDTOMapper.convert(user)).thenReturn(readUserByUserDTO)
+
+        // WHEN
+        val readUserDTO = userService.getByUsername(user.username, currentUser)
+
+        // THEN
+        assertThat(readUserDTO).isSameAs(readUserByUserDTO)
+        verify(userRepository).findByUsername(user.username)
+        verify(readUserByUserDTOMapper).convert(user)
+    }
+
+    @Test
+    fun getByUsernameShouldReturnReadUserByOwnerDTOIfCurrentUserHasTheGivenUsername() {
+        // GIVEN
+        val user = User(
+                username = "gleroy"
+        )
+        val currentUser = User(
+                username = user.username
+        )
+        val readUserByOwnerDTO = ReadUserByOwnerDTO(
+                email = user.email,
+                id = user.id,
+                role = user.role,
+                username = user.username
+        )
+        whenever(userRepository.findByUsername(user.username)).thenReturn(user)
+        whenever(readUserByOwnerDTOMapper.convert(user)).thenReturn(readUserByOwnerDTO)
+
+        // WHEN
+        val readUserDTO = userService.getByUsername(user.username, currentUser)
+
+        // THEN
+        assertThat(readUserDTO).isSameAs(readUserByOwnerDTO)
+        verify(userRepository).findByUsername(user.username)
+        verify(readUserByOwnerDTOMapper).convert(user)
+    }
+
+    @Test
+    fun getByUsernameShouldReturnReadUserByAdminDTOIfCurrentUserIsAdmin() {
+        // GIVEN
+        val user = User(
+                username = "gleroy"
+        )
+        val currentUser = User(
+                role = User.Role.ADMIN
+        )
+        val readUserByAdminDTO = ReadUserByAdminDTO(
+                email = user.email,
+                id = user.id,
+                username = user.username
+        )
+        whenever(userRepository.findByUsername(user.username)).thenReturn(user)
+        whenever(readUserByAdminDTOMapper.convert(user)).thenReturn(readUserByAdminDTO)
+
+        // WHEN
+        val readUserDTO = userService.getByUsername(user.username, currentUser)
+
+        // THEN
+        assertThat(readUserDTO).isSameAs(readUserByAdminDTO)
+        verify(userRepository).findByUsername(user.username)
+        verify(readUserByAdminDTOMapper).convert(user)
+    }
+
+    @Test
+    fun getByUsernameShouldReturnReadUserByAdminDTOIfCurrentUserIsSuperAdmin() {
+        // GIVEN
+        val user = User(
+                username = "gleroy"
+        )
+        val currentUser = User(
+                role = User.Role.SUPER_ADMIN
+        )
+        val readUserByAdminDTO = ReadUserByAdminDTO(
+                email = user.email,
+                id = user.id,
+                username = user.username
+        )
+        whenever(userRepository.findByUsername(user.username)).thenReturn(user)
+        whenever(readUserByAdminDTOMapper.convert(user)).thenReturn(readUserByAdminDTO)
+
+        // WHEN
+        val readUserDTO = userService.getByUsername(user.username, currentUser)
+
+        // THEN
+        assertThat(readUserDTO).isSameAs(readUserByAdminDTO)
+        verify(userRepository).findByUsername(user.username)
+        verify(readUserByAdminDTOMapper).convert(user)
+    }
+
     private fun assertUserIsCreatedFromDTOAndReturnIt(
             user: User, writeUserDTO: WriteUserDTO, byAdmin: Boolean = false
     ): User {
