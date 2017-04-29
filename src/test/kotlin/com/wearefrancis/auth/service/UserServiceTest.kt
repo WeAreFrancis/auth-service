@@ -167,7 +167,7 @@ class UserServiceTest {
     ): User {
         assertThat(user.email).isEqualTo(writeUserDTO.email)
         assertThat(user.enabled).isEqualTo(byAdmin)
-        assertThat(user.role).isEqualTo(User.Role.ROLE_USER)
+        assertThat(user.role).isEqualTo(User.Role.USER)
         assertThat(user.isAccountNonExpired).isTrue()
         assertThat(user.isAccountNonLocked).isTrue()
         assertThat(user.isCredentialsNonExpired).isTrue()

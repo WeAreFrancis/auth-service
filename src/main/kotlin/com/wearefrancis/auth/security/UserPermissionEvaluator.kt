@@ -15,8 +15,8 @@ class UserPermissionEvaluator: PermissionEvaluator {
     ): Boolean = when (targetType) {
         "user" -> when(permission) {
             "create" -> authentication == null
-                    || User.Role.ROLE_ADMIN in authentication.authorities
-                    || User.Role.ROLE_SUPER_ADMIN in authentication.authorities
+                    || User.Role.ADMIN in authentication.authorities
+                    || User.Role.SUPER_ADMIN in authentication.authorities
             else -> false
         }
         else -> false
