@@ -7,9 +7,12 @@ import com.nhaarman.mockito_kotlin.whenever
 import com.wearefrancis.auth.domain.User
 import com.wearefrancis.auth.dto.ReadUserByAdminDTO
 import com.wearefrancis.auth.dto.ReadUserByOwnerDTO
+import com.wearefrancis.auth.dto.ReadUserByUserDTO
 import com.wearefrancis.auth.dto.WriteUserDTO
 import com.wearefrancis.auth.dto.mapper.ReadUserByAdminDTOMapper
 import com.wearefrancis.auth.dto.mapper.ReadUserByOwnerDTOMapper
+import com.wearefrancis.auth.dto.mapper.ReadUserByUserDTOMapper
+import com.wearefrancis.auth.exception.EntityNotFoundException
 import com.wearefrancis.auth.exception.ObjectAlreadyExistsException
 import com.wearefrancis.auth.repository.UserRepository
 import org.assertj.core.api.Assertions.assertThat
@@ -17,10 +20,12 @@ import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import java.util.*
 
 class UserServiceTest {
     private lateinit var readUserByAdminDTOMapper: ReadUserByAdminDTOMapper
     private lateinit var readUserByOwnerDTOMapper: ReadUserByOwnerDTOMapper
+    private lateinit var readUserByUserDTOMapper: ReadUserByUserDTOMapper
     private lateinit var userRepository: UserRepository
     private lateinit var userService: UserService
 
@@ -28,11 +33,13 @@ class UserServiceTest {
     fun setUp() {
         readUserByAdminDTOMapper = mock<ReadUserByAdminDTOMapper>()
         readUserByOwnerDTOMapper = mock<ReadUserByOwnerDTOMapper>()
+        readUserByUserDTOMapper = mock<ReadUserByUserDTOMapper>()
         userRepository = mock<UserRepository>()
         userService = UserService(
                 passwordEncoder = BCryptPasswordEncoder(),
                 readUserByAdminDTOMapper = readUserByAdminDTOMapper,
                 readUserByOwnerDTOMapper = readUserByOwnerDTOMapper,
+                readUserByUserDTOMapper = readUserByUserDTOMapper,
                 userRepository = userRepository
         )
     }
@@ -160,6 +167,127 @@ class UserServiceTest {
         verify(userRepository).existsByEmail(writeUserDTO.email)
         verify(userRepository).save(any<User>())
         verify(readUserByAdminDTOMapper).convert(any<User>())
+    }
+
+    @Test
+    fun getByIdShouldThrowEntityNotFoundExceptionIfTheUserThatHasTheGivenIdIsNotFound() {
+        // GIVEN
+        val id = UUID.randomUUID()
+        val currentUser = User()
+
+        try {
+            // WHEN
+            userService.getById(id, currentUser)
+
+            // THEN
+            fail()
+        } catch (exception: EntityNotFoundException) {
+            // THEN
+            assertThat(exception.message).isEqualTo("User $id not found")
+            verify(userRepository).findOne(id)
+        }
+    }
+
+    @Test
+    fun getByIdShouldReturnReadUserByUserDTOIfCurrentUserIsUser() {
+        // GIVEN
+        val user = User(
+                id = UUID.randomUUID()
+        )
+        val currentUser = User()
+        val readUserByUserDTO = ReadUserByUserDTO(
+                id = user.id,
+                username = user.username
+        )
+        whenever(userRepository.findOne(user.id)).thenReturn(user)
+        whenever(readUserByUserDTOMapper.convert(user)).thenReturn(readUserByUserDTO)
+
+        // WHEN
+        val readUserDTO = userService.getById(user.id, currentUser)
+
+        // THEN
+        assertThat(readUserDTO).isSameAs(readUserByUserDTO)
+        verify(userRepository).findOne(user.id)
+        verify(readUserByUserDTOMapper).convert(user)
+    }
+
+    @Test
+    fun getByIdShouldReturnReadUserByOwnerDTOIfCurrentUserHasTheGivenId() {
+        // GIVEN
+        val user = User(
+                id = UUID.randomUUID()
+        )
+        val currentUser = User(
+                id = user.id
+        )
+        val readUserByOwnerDTO = ReadUserByOwnerDTO(
+                email = user.email,
+                id = user.id,
+                role = user.role,
+                username = user.username
+        )
+        whenever(userRepository.findOne(user.id)).thenReturn(user)
+        whenever(readUserByOwnerDTOMapper.convert(user)).thenReturn(readUserByOwnerDTO)
+
+        // WHEN
+        val readUserDTO = userService.getById(user.id, currentUser)
+
+        // THEN
+        assertThat(readUserDTO).isSameAs(readUserByOwnerDTO)
+        verify(userRepository).findOne(user.id)
+        verify(readUserByOwnerDTOMapper).convert(user)
+    }
+
+    @Test
+    fun getByIdShouldReturnReadUserByAdminDTOIfCurrentUserIsAdmin() {
+        // GIVEN
+        val user = User(
+                id = UUID.randomUUID()
+        )
+        val currentUser = User(
+                role = User.Role.ADMIN
+        )
+        val readUserByAdminDTO = ReadUserByAdminDTO(
+                email = user.email,
+                id = user.id,
+                username = user.username
+        )
+        whenever(userRepository.findOne(user.id)).thenReturn(user)
+        whenever(readUserByAdminDTOMapper.convert(user)).thenReturn(readUserByAdminDTO)
+
+        // WHEN
+        val readUserDTO = userService.getById(user.id, currentUser)
+
+        // THEN
+        assertThat(readUserDTO).isSameAs(readUserByAdminDTO)
+        verify(userRepository).findOne(user.id)
+        verify(readUserByAdminDTOMapper).convert(user)
+    }
+
+    @Test
+    fun getByIdShouldReturnReadUserByAdminDTOIfCurrentUserIsSuperAdmin() {
+        // GIVEN
+        val user = User(
+                id = UUID.randomUUID()
+        )
+        val currentUser = User(
+                role = User.Role.SUPER_ADMIN
+        )
+        val readUserByAdminDTO = ReadUserByAdminDTO(
+                email = user.email,
+                id = user.id,
+                username = user.username
+        )
+        whenever(userRepository.findOne(user.id)).thenReturn(user)
+        whenever(readUserByAdminDTOMapper.convert(user)).thenReturn(readUserByAdminDTO)
+
+        // WHEN
+        val readUserDTO = userService.getById(user.id, currentUser)
+
+        // THEN
+        assertThat(readUserDTO).isSameAs(readUserByAdminDTO)
+        verify(userRepository).findOne(user.id)
+        verify(readUserByAdminDTOMapper).convert(user)
     }
 
     private fun assertUserIsCreatedFromDTOAndReturnIt(

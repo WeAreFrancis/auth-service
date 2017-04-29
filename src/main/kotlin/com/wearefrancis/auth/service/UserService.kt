@@ -5,17 +5,21 @@ import com.wearefrancis.auth.dto.ReadUserDTO
 import com.wearefrancis.auth.dto.WriteUserDTO
 import com.wearefrancis.auth.dto.mapper.ReadUserByAdminDTOMapper
 import com.wearefrancis.auth.dto.mapper.ReadUserByOwnerDTOMapper
+import com.wearefrancis.auth.dto.mapper.ReadUserByUserDTOMapper
+import com.wearefrancis.auth.exception.EntityNotFoundException
 import com.wearefrancis.auth.exception.ObjectAlreadyExistsException
 import com.wearefrancis.auth.repository.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 class UserService(
         private val passwordEncoder: BCryptPasswordEncoder,
         private val readUserByAdminDTOMapper: ReadUserByAdminDTOMapper,
         private val readUserByOwnerDTOMapper: ReadUserByOwnerDTOMapper,
+        private val readUserByUserDTOMapper: ReadUserByUserDTOMapper,
         private val userRepository: UserRepository
 ) {
     companion object {
@@ -39,6 +43,15 @@ class UserService(
         return when (byAdmin) {
             true -> readUserByAdminDTOMapper.convert(userRepository.save(user))
             false -> readUserByOwnerDTOMapper.convert(userRepository.save(user))
+        }
+    }
+
+    fun getById(userId: UUID, currentUser: User): ReadUserDTO {
+        val user = userRepository.findOne(userId) ?: throw EntityNotFoundException("User $userId not found")
+        return when {
+            currentUser.role in User.Role.ADMIN..User.Role.SUPER_ADMIN -> readUserByAdminDTOMapper.convert(user)
+            currentUser.id == userId -> readUserByOwnerDTOMapper.convert(user)
+            else -> readUserByUserDTOMapper.convert(user)
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.wearefrancis.auth.domain
 
+import com.wearefrancis.auth.NAME_MAX_LENGTH
 import org.hibernate.annotations.GenericGenerator
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
