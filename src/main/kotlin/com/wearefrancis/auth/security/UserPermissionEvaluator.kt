@@ -12,13 +12,21 @@ class UserPermissionEvaluator: PermissionEvaluator {
 
     override fun hasPermission(
             authentication: Authentication?, targetId: Serializable?, targetType: String?, permission: Any?
-    ): Boolean = when (targetType) {
-        "user" -> when(permission) {
-            "create" -> authentication == null
-                    || User.Role.ADMIN in authentication.authorities
-                    || User.Role.SUPER_ADMIN in authentication.authorities
-            else -> false
+    ): Boolean {
+        val currentUser = when (authentication) {
+            null -> null
+            else -> authentication.principal as User
         }
-        else -> false
+        return when (targetType) {
+            "user" -> when (permission) {
+                "create" -> currentUser == null
+                        || currentUser.role in User.Role.ADMIN..User.Role.SUPER_ADMIN
+                "update" -> currentUser != null
+                        && (currentUser.id == targetId
+                        || currentUser.role in User.Role.ADMIN..User.Role.SUPER_ADMIN)
+                else -> throw IllegalArgumentException("Invalid permission: $permission")
+            }
+            else -> throw IllegalArgumentException("Invalid target type: $targetType")
+        }
     }
 }

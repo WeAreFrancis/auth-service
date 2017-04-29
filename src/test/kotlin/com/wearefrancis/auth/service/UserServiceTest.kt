@@ -5,10 +5,7 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import com.wearefrancis.auth.domain.User
-import com.wearefrancis.auth.dto.ReadUserByAdminDTO
-import com.wearefrancis.auth.dto.ReadUserByOwnerDTO
-import com.wearefrancis.auth.dto.ReadUserByUserDTO
-import com.wearefrancis.auth.dto.WriteUserDTO
+import com.wearefrancis.auth.dto.*
 import com.wearefrancis.auth.dto.mapper.ReadUserByAdminDTOMapper
 import com.wearefrancis.auth.dto.mapper.ReadUserByOwnerDTOMapper
 import com.wearefrancis.auth.dto.mapper.ReadUserByUserDTOMapper
@@ -47,16 +44,16 @@ class UserServiceTest {
     @Test
     fun createShouldThrowObjectAlreadyExistsExceptionIfTheUsernameIsAlreadyUsed() {
         // GIVEN
-        val writeUserDTO = WriteUserDTO(
+        val createUserDTO = CreateUserDTO(
                 email = "gleroy@test.com",
                 password = "123456",
                 username = "gleroy"
         )
         val readUserByOwnerDTO = ReadUserByOwnerDTO(
-                email = writeUserDTO.email,
-                username = writeUserDTO.username
+                email = createUserDTO.email,
+                username = createUserDTO.username
         )
-        whenever(userRepository.existsByUsername(writeUserDTO.username)).thenReturn(true)
+        whenever(userRepository.existsByUsername(createUserDTO.username)).thenReturn(true)
         whenever(userRepository.save(any<User>())).then({
             invocation -> invocation.getArgumentAt(0, User::class.java)
         })
@@ -64,33 +61,33 @@ class UserServiceTest {
 
         try {
             // WHEN
-            userService.create(writeUserDTO)
+            userService.create(createUserDTO)
 
             // THEN
-            verify(userRepository).existsByUsername(writeUserDTO.username)
-            verify(userRepository).existsByEmail(writeUserDTO.email)
+            verify(userRepository).existsByUsername(createUserDTO.username)
+            verify(userRepository).existsByEmail(createUserDTO.email)
             verify(userRepository).save(any<User>())
             verify(readUserByOwnerDTOMapper.convert(any<User>()))
             fail()
         } catch (exception: ObjectAlreadyExistsException) {
             // THEN
-            assertThat(exception.message).isEqualTo("Username ${writeUserDTO.username} already used")
+            assertThat(exception.message).isEqualTo("Username ${createUserDTO.username} already used")
         }
     }
 
     @Test
     fun createShouldThrowObjectAlreadyExistsExceptionIfTheEmailIsAlreadyUsed() {
         // GIVEN
-        val writeUserDTO = WriteUserDTO(
+        val createUserDTO = CreateUserDTO(
                 email = "gleroy@test.com",
                 password = "123456",
                 username = "gleroy"
         )
         val readUserByOwnerDTO = ReadUserByOwnerDTO(
-                email = writeUserDTO.email,
-                username = writeUserDTO.username
+                email = createUserDTO.email,
+                username = createUserDTO.username
         )
-        whenever(userRepository.existsByEmail(writeUserDTO.email)).thenReturn(true)
+        whenever(userRepository.existsByEmail(createUserDTO.email)).thenReturn(true)
         whenever(userRepository.save(any<User>())).then({
             invocation -> invocation.getArgumentAt(0, User::class.java)
         })
@@ -98,44 +95,44 @@ class UserServiceTest {
 
         try {
             // WHEN
-            userService.create(writeUserDTO)
+            userService.create(createUserDTO)
 
             // THEN
-            verify(userRepository).existsByUsername(writeUserDTO.username)
-            verify(userRepository).existsByEmail(writeUserDTO.email)
+            verify(userRepository).existsByUsername(createUserDTO.username)
+            verify(userRepository).existsByEmail(createUserDTO.email)
             verify(userRepository).save(any<User>())
             verify(readUserByOwnerDTOMapper.convert(any<User>()))
             fail()
         } catch (exception: ObjectAlreadyExistsException) {
             // THEN
-            assertThat(exception.message).isEqualTo("Email ${writeUserDTO.email} already used")
+            assertThat(exception.message).isEqualTo("Email ${createUserDTO.email} already used")
         }
     }
 
     @Test
     fun createShouldReturnReadUserByOwnerDTOIfByAdminIsFalse() {
         // GIVEN
-        val writeUserDTO = WriteUserDTO(
+        val createUserDTO = CreateUserDTO(
                 email = "gleroy@test.com",
                 password = "123456",
                 username = "gleroy"
         )
         val readUserByOwnerDTO = ReadUserByOwnerDTO(
-                email = writeUserDTO.email,
-                username = writeUserDTO.username
+                email = createUserDTO.email,
+                username = createUserDTO.username
         )
         whenever(userRepository.save(any<User>())).then({invocation ->
-            assertUserIsCreatedFromDTOAndReturnIt(invocation.getArgumentAt(0, User::class.java), writeUserDTO)
+            assertUserIsCreatedFromDTOAndReturnIt(invocation.getArgumentAt(0, User::class.java), createUserDTO)
         })
         whenever(readUserByOwnerDTOMapper.convert(any<User>())).thenReturn(readUserByOwnerDTO)
 
         // WHEN
-        val readUserDTO = userService.create(writeUserDTO)
+        val readUserDTO = userService.create(createUserDTO)
 
         // THEN
         assertThat(readUserDTO).isSameAs(readUserByOwnerDTO)
-        verify(userRepository).existsByUsername(writeUserDTO.username)
-        verify(userRepository).existsByEmail(writeUserDTO.email)
+        verify(userRepository).existsByUsername(createUserDTO.username)
+        verify(userRepository).existsByEmail(createUserDTO.email)
         verify(userRepository).save(any<User>())
         verify(readUserByOwnerDTOMapper).convert(any<User>())
     }
@@ -143,28 +140,28 @@ class UserServiceTest {
     @Test
     fun createShouldReturnReadUserByAdminDTOIfByAdminIsTrue() {
         // GIVEN
-        val writeUserDTO = WriteUserDTO(
+        val createUserDTO = CreateUserDTO(
                 email = "gleroy@test.com",
                 password = "123456",
                 username = "gleroy"
         )
         val readUserByAdminDTO = ReadUserByAdminDTO(
-                email = writeUserDTO.email,
+                email = createUserDTO.email,
                 enabled = true,
-                username = writeUserDTO.username
+                username = createUserDTO.username
         )
         whenever(userRepository.save(any<User>())).then({invocation ->
-            assertUserIsCreatedFromDTOAndReturnIt(invocation.getArgumentAt(0, User::class.java), writeUserDTO, true)
+            assertUserIsCreatedFromDTOAndReturnIt(invocation.getArgumentAt(0, User::class.java), createUserDTO, true)
         })
         whenever(readUserByAdminDTOMapper.convert(any<User>())).thenReturn(readUserByAdminDTO)
 
         // WHEN
-        val readUserDTO = userService.create(writeUserDTO, true)
+        val readUserDTO = userService.create(createUserDTO, true)
 
         // THEN
         assertThat(readUserDTO).isSameAs(readUserByAdminDTO)
-        verify(userRepository).existsByUsername(writeUserDTO.username)
-        verify(userRepository).existsByEmail(writeUserDTO.email)
+        verify(userRepository).existsByUsername(createUserDTO.username)
+        verify(userRepository).existsByEmail(createUserDTO.email)
         verify(userRepository).save(any<User>())
         verify(readUserByAdminDTOMapper).convert(any<User>())
     }
