@@ -2,19 +2,15 @@ package com.wearefrancis.auth.dto
 
 import com.wearefrancis.auth.domain.NAME_MAX_LENGTH
 import org.hibernate.validator.constraints.Email
-import javax.validation.constraints.NotNull
 import javax.validation.constraints.Pattern
 
 data class WriteUserDTO(
         @get:Email
-        @get:NotNull
-        val email: String?,
+        val email: String,
 
-        @get:NotNull
         @get:Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[$@$!%*?&])[A-Za-z\\d$@$!%*?&]{8,}$")
-        val password: String?,
+        val password: String,
 
-        @get:NotNull
         @get:Pattern(regexp = "^[A-z0-9]{3,$NAME_MAX_LENGTH}$")
-        val username: String?
+        val username: String
 )
