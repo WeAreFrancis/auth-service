@@ -20,4 +20,6 @@ interface UserRepository : CrudRepository<User, UUID> {
             WHERE user.username = :username
     """)
     fun existsByUsername(@Param("username") username: String): Boolean
+
+    fun findByUsername(username: String): User?
 }
