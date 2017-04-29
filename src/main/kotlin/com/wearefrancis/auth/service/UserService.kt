@@ -12,6 +12,7 @@ import com.wearefrancis.auth.repository.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
+import java.io.Serializable
 import java.util.*
 
 @Service
@@ -48,10 +49,17 @@ class UserService(
 
     fun getById(userId: UUID, currentUser: User): ReadUserDTO {
         val user = userRepository.findOne(userId) ?: throw EntityNotFoundException("User $userId not found")
-        return when {
-            currentUser.role in User.Role.ADMIN..User.Role.SUPER_ADMIN -> readUserByAdminDTOMapper.convert(user)
-            currentUser.id == userId -> readUserByOwnerDTOMapper.convert(user)
-            else -> readUserByUserDTOMapper.convert(user)
-        }
+        return userModelToDTO(userId, user, currentUser)
+    }
+
+    fun getByUsername(username: String, currentUser: User): ReadUserDTO {
+        val user = userRepository.findByUsername(username) ?: throw EntityNotFoundException("User $username not found")
+        return userModelToDTO(username, user, currentUser)
+    }
+
+    private fun userModelToDTO(id: Serializable, user: User, currentUser: User): ReadUserDTO = when {
+        currentUser.role in User.Role.ADMIN..User.Role.SUPER_ADMIN -> readUserByAdminDTOMapper.convert(user)
+        currentUser.id == id || currentUser.username == id -> readUserByOwnerDTOMapper.convert(user)
+        else -> readUserByUserDTOMapper.convert(user)
     }
 }

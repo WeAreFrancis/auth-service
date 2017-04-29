@@ -35,6 +35,12 @@ class UserController(
         return userService.getById(userId, currentUser)
     }
 
+    @GetMapping("/{username}")
+    fun getByUsername(@PathVariable username: String, principal: Principal): ReadUserDTO {
+        val currentUser = userFromPrincipal(principal)
+        return userService.getByUsername(username, currentUser)
+    }
+
     @GetMapping
     fun getCurrentUser(principal: Principal): ReadUserDTO {
         val user = userFromPrincipal(principal)
