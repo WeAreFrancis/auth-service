@@ -5,6 +5,7 @@ import com.wearefrancis.auth.security.JwtAuthenticationFilter
 import com.wearefrancis.auth.security.JwtUserService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -34,7 +35,8 @@ open class WebSecurityConfig(
                 .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
-                        .antMatchers("/login").permitAll()
+                        .antMatchers(HttpMethod.GET, "/login").permitAll()
+                        .antMatchers(HttpMethod.POST, "/users").permitAll()
                         .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
