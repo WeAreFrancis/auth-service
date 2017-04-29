@@ -133,6 +133,25 @@
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <version>${kotlin.version}</version>
+
+                <configuration>
+                    <compilerPlugins>
+                        <plugin>all-open</plugin>
+                    </compilerPlugins>
+
+                    <pluginOptions>
+                        <option>all-open:annotation=org.springframework.web.bind.annotation.RestController</option>
+                    </pluginOptions>
+                </configuration>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-allopen</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                </dependencies>
+
                 <executions>
                     <execution>
                         <id>compile</id>

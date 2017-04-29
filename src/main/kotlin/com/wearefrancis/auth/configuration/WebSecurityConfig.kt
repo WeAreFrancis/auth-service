@@ -3,9 +3,11 @@ package com.wearefrancis.auth.configuration
 import com.wearefrancis.auth.security.JwtAuthenticationEntryPoint
 import com.wearefrancis.auth.security.JwtAuthenticationFilter
 import com.wearefrancis.auth.security.JwtUserService
+import com.wearefrancis.auth.security.UserPermissionEvaluator
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
+import org.springframework.security.access.PermissionEvaluator
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -45,4 +47,7 @@ open class WebSecurityConfig(
 
     @Bean
     open fun passwordEncoder(): BCryptPasswordEncoder = BCryptPasswordEncoder()
+
+    @Bean
+    open fun permissionEvaluator(): PermissionEvaluator = UserPermissionEvaluator()
 }

@@ -21,7 +21,7 @@ class ReadUserByUserDTOMapperTest {
                 enabled = true,
                 locked = true,
                 password = "123456",
-                role = User.Role.ROLE_ADMIN,
+                role = User.Role.ADMIN,
                 username = "gleroy"
         )
 

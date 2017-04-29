@@ -24,18 +24,15 @@ class UserService(
         if (userRepository.existsByEmail(userDTO.email!!)) {
             throw ObjectAlreadyExistsException("Email ${userDTO.email} already used")
         }
+        val user = User(
+                email = userDTO.email,
+                enabled = byAdmin,
+                password = passwordEncoder.encode(userDTO.password),
+                username = userDTO.username
+        )
         return when (byAdmin) {
-            true -> readUserByAdminDTOMapper.convert(userRepository.save(User(
-                    email = userDTO.email,
-                    enabled = true,
-                    password = passwordEncoder.encode(userDTO.password),
-                    username = userDTO.username
-            )))
-            false -> readUserByOwnerDTOMapper.convert(userRepository.save(User(
-                    email = userDTO.email,
-                    password = passwordEncoder.encode(userDTO.password),
-                    username = userDTO.username
-            )))
+            true -> readUserByAdminDTOMapper.convert(userRepository.save(user))
+            false -> readUserByOwnerDTOMapper.convert(userRepository.save(user))
         }
     }
 }

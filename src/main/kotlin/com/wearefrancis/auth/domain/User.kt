@@ -29,15 +29,15 @@ data class User(
 
         @Column(nullable = false)
         @Enumerated(EnumType.STRING)
-        val role: Role = User.Role.ROLE_USER,
+        val role: Role = User.Role.USER,
 
         @Column(length = NAME_MAX_LENGTH, nullable = false, unique = true)
         private val username: String = ""
 ) : Serializable, UserDetails {
     enum class Role : GrantedAuthority {
-        ROLE_USER,
-        ROLE_ADMIN,
-        ROLE_SUPER_ADMIN;
+        USER,
+        ADMIN,
+        SUPER_ADMIN;
 
         override fun getAuthority(): String {
             return name

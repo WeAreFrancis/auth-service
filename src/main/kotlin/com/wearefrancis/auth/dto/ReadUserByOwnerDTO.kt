@@ -6,6 +6,6 @@ import java.util.*
 data class ReadUserByOwnerDTO(
         val email: String,
         override val id: UUID = UUID.randomUUID(),
-        val role: User.Role = User.Role.ROLE_USER,
+        val role: User.Role = User.Role.USER,
         override val username: String
 ) : ReadUserDTO
