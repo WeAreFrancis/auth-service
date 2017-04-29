@@ -11,6 +11,6 @@ class EntityNotFoundException(message: String) : RuntimeException(message) {
     }
 
     init {
-        logger.error(message)
+        logger.info(message)
     }
 }

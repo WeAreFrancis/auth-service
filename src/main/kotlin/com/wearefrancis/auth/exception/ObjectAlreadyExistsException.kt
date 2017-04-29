@@ -11,6 +11,6 @@ class ObjectAlreadyExistsException(message: String) : RuntimeException(message) 
     }
 
     init {
-        logger.error(message)
+        logger.info(message)
     }
 }
