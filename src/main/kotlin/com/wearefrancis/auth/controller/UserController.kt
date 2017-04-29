@@ -29,7 +29,7 @@ class UserController(
         return userService.create(userDTO, principal != null)
     }
 
-    @GetMapping("/{id:$UUID_REGEX}")
+    @GetMapping("/{userId:$UUID_REGEX}")
     fun getById(@PathVariable userId: UUID, principal: Principal): ReadUserDTO {
         val currentUser = userFromPrincipal(principal)
         return userService.getById(userId, currentUser)
