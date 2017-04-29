@@ -11,7 +11,7 @@
     <properties>
         <assertj.java8.version>1.0.0m1</assertj.java8.version>
         <jjwt.version>0.7.0</jjwt.version>
-        <kotlin.version>1.1.1</kotlin.version>
+        <kotlin.version>1.1.2</kotlin.version>
         <mockito.kotlin.version>0.9.0</mockito.kotlin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.boot.version>1.5.2.RELEASE</spring.boot.version>
