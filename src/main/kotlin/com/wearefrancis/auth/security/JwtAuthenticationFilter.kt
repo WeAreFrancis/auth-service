@@ -1,6 +1,8 @@
 package com.wearefrancis.auth.security
 
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
@@ -21,21 +23,25 @@ open class JwtAuthenticationFilter(
         val authorizationValue = request!!.getHeader(HttpHeaders.AUTHORIZATION)
         if (authorizationValue == null || !authorizationValue.startsWith(BEARER, true)) {
             logger.info("Invalid AUTHORIZATION header value")
+            filterChain!!.doFilter(request, response)
         } else {
             val jwt = authorizationValue.substring(BEARER.length + 1)
             val username = jwtUtils.getUsernameFromJwt(jwt)
             if (SecurityContextHolder.getContext().authentication == null) {
                 val user = jwtUserService.loadUserByUsername(username)
                 if (!jwtUtils.isValidJwt(jwt, user)) {
+                    response!!.sendError(HttpStatus.UNAUTHORIZED.value())
                     logger.info("Authentication of $username failed")
                 } else {
                     val authentication = UsernamePasswordAuthenticationToken(user, null, user.authorities)
                     authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
                     SecurityContextHolder.getContext().authentication = authentication
                     logger.info("User $username authenticated")
+                    filterChain!!.doFilter(request, response)
                 }
+            } else {
+                filterChain!!.doFilter(request, response)
             }
         }
-        filterChain!!.doFilter(request, response)
     }
 }
