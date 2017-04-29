@@ -1,5 +1,6 @@
 package com.wearefrancis.auth.controller
 
+import com.wearefrancis.auth.UUID_REGEX
 import com.wearefrancis.auth.domain.User
 import com.wearefrancis.auth.dto.ReadUserDTO
 import com.wearefrancis.auth.dto.WriteUserDTO
@@ -11,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.web.bind.annotation.*
 import java.security.Principal
+import java.util.*
 import javax.validation.Valid
 
 @RequestMapping("/users")
@@ -27,13 +29,23 @@ class UserController(
         return userService.create(userDTO, principal != null)
     }
 
+    @GetMapping("/{id:$UUID_REGEX}")
+    fun getById(@PathVariable userId: UUID, principal: Principal): ReadUserDTO {
+        val currentUser = userFromPrincipal(principal)
+        return userService.getById(userId, currentUser)
+    }
+
     @GetMapping
     fun getCurrentUser(principal: Principal): ReadUserDTO {
-        val token = principal as UsernamePasswordAuthenticationToken
-        val user = token.principal as User
+        val user = userFromPrincipal(principal)
         return when {
             user.role in User.Role.ADMIN..User.Role.SUPER_ADMIN -> readUserByAdminDTOMapper.convert(user)
             else -> readUserByOwnerDTOMapper.convert(user)
         }
+    }
+
+    private fun userFromPrincipal(principal: Principal): User {
+        val token = principal as UsernamePasswordAuthenticationToken
+        return token.principal as User
     }
 }

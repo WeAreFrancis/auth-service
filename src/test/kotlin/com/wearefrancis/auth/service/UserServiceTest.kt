@@ -10,6 +10,7 @@ import com.wearefrancis.auth.dto.ReadUserByOwnerDTO
 import com.wearefrancis.auth.dto.WriteUserDTO
 import com.wearefrancis.auth.dto.mapper.ReadUserByAdminDTOMapper
 import com.wearefrancis.auth.dto.mapper.ReadUserByOwnerDTOMapper
+import com.wearefrancis.auth.dto.mapper.ReadUserByUserDTOMapper
 import com.wearefrancis.auth.exception.ObjectAlreadyExistsException
 import com.wearefrancis.auth.repository.UserRepository
 import org.assertj.core.api.Assertions.assertThat
@@ -21,6 +22,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 class UserServiceTest {
     private lateinit var readUserByAdminDTOMapper: ReadUserByAdminDTOMapper
     private lateinit var readUserByOwnerDTOMapper: ReadUserByOwnerDTOMapper
+    private lateinit var readUserByUserDTOMapper: ReadUserByUserDTOMapper
     private lateinit var userRepository: UserRepository
     private lateinit var userService: UserService
 
@@ -28,11 +30,13 @@ class UserServiceTest {
     fun setUp() {
         readUserByAdminDTOMapper = mock<ReadUserByAdminDTOMapper>()
         readUserByOwnerDTOMapper = mock<ReadUserByOwnerDTOMapper>()
+        readUserByUserDTOMapper = mock<ReadUserByUserDTOMapper>()
         userRepository = mock<UserRepository>()
         userService = UserService(
                 passwordEncoder = BCryptPasswordEncoder(),
                 readUserByAdminDTOMapper = readUserByAdminDTOMapper,
                 readUserByOwnerDTOMapper = readUserByOwnerDTOMapper,
+                readUserByUserDTOMapper = readUserByUserDTOMapper,
                 userRepository = userRepository
         )
     }
