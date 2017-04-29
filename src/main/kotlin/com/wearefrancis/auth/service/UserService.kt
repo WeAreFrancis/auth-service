@@ -18,10 +18,10 @@ class UserService(
         private val userRepository: UserRepository
 ) {
     fun create(userDTO: WriteUserDTO, byAdmin: Boolean = false): ReadUserDTO {
-        if (userRepository.existsByUsername(userDTO.username!!)) {
+        if (userRepository.existsByUsername(userDTO.username)) {
             throw ObjectAlreadyExistsException("Username ${userDTO.username} already used")
         }
-        if (userRepository.existsByEmail(userDTO.email!!)) {
+        if (userRepository.existsByEmail(userDTO.email)) {
             throw ObjectAlreadyExistsException("Email ${userDTO.email} already used")
         }
         val user = User(

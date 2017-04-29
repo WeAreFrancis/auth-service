@@ -46,10 +46,10 @@ class UserServiceTest {
                 username = "gleroy"
         )
         val readUserByOwnerDTO = ReadUserByOwnerDTO(
-                email = writeUserDTO.email!!,
-                username = writeUserDTO.username!!
+                email = writeUserDTO.email,
+                username = writeUserDTO.username
         )
-        whenever(userRepository.existsByUsername(writeUserDTO.username!!)).thenReturn(true)
+        whenever(userRepository.existsByUsername(writeUserDTO.username)).thenReturn(true)
         whenever(userRepository.save(any<User>())).then({
             invocation -> invocation.getArgumentAt(0, User::class.java)
         })
@@ -60,8 +60,8 @@ class UserServiceTest {
             userService.create(writeUserDTO)
 
             // THEN
-            verify(userRepository).existsByUsername(writeUserDTO.username!!)
-            verify(userRepository).existsByEmail(writeUserDTO.email!!)
+            verify(userRepository).existsByUsername(writeUserDTO.username)
+            verify(userRepository).existsByEmail(writeUserDTO.email)
             verify(userRepository).save(any<User>())
             verify(readUserByOwnerDTOMapper.convert(any<User>()))
             fail()
@@ -80,10 +80,10 @@ class UserServiceTest {
                 username = "gleroy"
         )
         val readUserByOwnerDTO = ReadUserByOwnerDTO(
-                email = writeUserDTO.email!!,
-                username = writeUserDTO.username!!
+                email = writeUserDTO.email,
+                username = writeUserDTO.username
         )
-        whenever(userRepository.existsByEmail(writeUserDTO.email!!)).thenReturn(true)
+        whenever(userRepository.existsByEmail(writeUserDTO.email)).thenReturn(true)
         whenever(userRepository.save(any<User>())).then({
             invocation -> invocation.getArgumentAt(0, User::class.java)
         })
@@ -94,8 +94,8 @@ class UserServiceTest {
             userService.create(writeUserDTO)
 
             // THEN
-            verify(userRepository).existsByUsername(writeUserDTO.username!!)
-            verify(userRepository).existsByEmail(writeUserDTO.email!!)
+            verify(userRepository).existsByUsername(writeUserDTO.username)
+            verify(userRepository).existsByEmail(writeUserDTO.email)
             verify(userRepository).save(any<User>())
             verify(readUserByOwnerDTOMapper.convert(any<User>()))
             fail()
@@ -114,8 +114,8 @@ class UserServiceTest {
                 username = "gleroy"
         )
         val readUserByOwnerDTO = ReadUserByOwnerDTO(
-                email = writeUserDTO.email!!,
-                username = writeUserDTO.username!!
+                email = writeUserDTO.email,
+                username = writeUserDTO.username
         )
         whenever(userRepository.save(any<User>())).then({invocation ->
             assertUserIsCreatedFromDTOAndReturnIt(invocation.getArgumentAt(0, User::class.java), writeUserDTO)
@@ -127,8 +127,8 @@ class UserServiceTest {
 
         // THEN
         assertThat(readUserDTO).isSameAs(readUserByOwnerDTO)
-        verify(userRepository).existsByUsername(writeUserDTO.username!!)
-        verify(userRepository).existsByEmail(writeUserDTO.email!!)
+        verify(userRepository).existsByUsername(writeUserDTO.username)
+        verify(userRepository).existsByEmail(writeUserDTO.email)
         verify(userRepository).save(any<User>())
         verify(readUserByOwnerDTOMapper).convert(any<User>())
     }
@@ -142,9 +142,9 @@ class UserServiceTest {
                 username = "gleroy"
         )
         val readUserByAdminDTO = ReadUserByAdminDTO(
-                email = writeUserDTO.email!!,
+                email = writeUserDTO.email,
                 enabled = true,
-                username = writeUserDTO.username!!
+                username = writeUserDTO.username
         )
         whenever(userRepository.save(any<User>())).then({invocation ->
             assertUserIsCreatedFromDTOAndReturnIt(invocation.getArgumentAt(0, User::class.java), writeUserDTO, true)
@@ -156,8 +156,8 @@ class UserServiceTest {
 
         // THEN
         assertThat(readUserDTO).isSameAs(readUserByAdminDTO)
-        verify(userRepository).existsByUsername(writeUserDTO.username!!)
-        verify(userRepository).existsByEmail(writeUserDTO.email!!)
+        verify(userRepository).existsByUsername(writeUserDTO.username)
+        verify(userRepository).existsByEmail(writeUserDTO.email)
         verify(userRepository).save(any<User>())
         verify(readUserByAdminDTOMapper).convert(any<User>())
     }
