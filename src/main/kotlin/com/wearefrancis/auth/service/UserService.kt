@@ -4,7 +4,6 @@ import com.wearefrancis.auth.domain.User
 import com.wearefrancis.auth.dto.CreateUserDTO
 import com.wearefrancis.auth.dto.ReadUserDTO
 import com.wearefrancis.auth.dto.UpdateUserDTO
-import com.wearefrancis.auth.dto.WriteUserDTO
 import com.wearefrancis.auth.dto.mapper.ReadUserByAdminDTOMapper
 import com.wearefrancis.auth.dto.mapper.ReadUserByOwnerDTOMapper
 import com.wearefrancis.auth.dto.mapper.ReadUserByUserDTOMapper
