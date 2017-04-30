@@ -21,9 +21,8 @@ class UserPermissionEvaluator: PermissionEvaluator {
             "user" -> when (permission) {
                 "create" -> currentUser == null
                         || currentUser.role in User.Role.ADMIN..User.Role.SUPER_ADMIN
-                "update" -> currentUser != null
-                        && (currentUser.id == targetId
-                        || currentUser.role in User.Role.ADMIN..User.Role.SUPER_ADMIN)
+                "update" -> currentUser!!.id == targetId
+                        || currentUser.role in User.Role.ADMIN..User.Role.SUPER_ADMIN
                 else -> throw IllegalArgumentException("Invalid permission: $permission")
             }
             else -> throw IllegalArgumentException("Invalid target type: $targetType")
