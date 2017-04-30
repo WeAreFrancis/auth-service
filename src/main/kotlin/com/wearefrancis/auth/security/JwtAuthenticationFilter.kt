@@ -1,9 +1,11 @@
 package com.wearefrancis.auth.security
 
+import com.wearefrancis.auth.exception.InvalidJwtException
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
@@ -25,21 +27,31 @@ open class JwtAuthenticationFilter(
             filterChain!!.doFilter(request, response)
         } else {
             val jwt = authorizationValue.substring(BEARER.length + 1)
-            val username = jwtUtils.getUsernameFromJwt(jwt)
-            if (SecurityContextHolder.getContext().authentication == null) {
-                val user = jwtUserService.loadUserByUsername(username)
-                if (!jwtUtils.isValidJwt(jwt, user)) {
+            try {
+                val username = jwtUtils.getUsernameFromJwt(jwt)
+                try {
+                    if (SecurityContextHolder.getContext().authentication == null) {
+                        val user = jwtUserService.loadUserByUsername(username)
+                        if (!jwtUtils.isValidJwt(jwt, user)) {
+                            response!!.sendError(HttpStatus.UNAUTHORIZED.value())
+                            logger.info("Authentication of $username failed")
+                        } else {
+                            val authentication = UsernamePasswordAuthenticationToken(user, null, user.authorities)
+                            authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
+                            SecurityContextHolder.getContext().authentication = authentication
+                            logger.info("User $username authenticated")
+                            filterChain!!.doFilter(request, response)
+                        }
+                    } else {
+                        filterChain!!.doFilter(request, response)
+                    }
+                } catch (exception: UsernameNotFoundException) {
                     response!!.sendError(HttpStatus.UNAUTHORIZED.value())
                     logger.info("Authentication of $username failed")
-                } else {
-                    val authentication = UsernamePasswordAuthenticationToken(user, null, user.authorities)
-                    authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
-                    SecurityContextHolder.getContext().authentication = authentication
-                    logger.info("User $username authenticated")
-                    filterChain!!.doFilter(request, response)
                 }
-            } else {
-                filterChain!!.doFilter(request, response)
+            } catch (exception: InvalidJwtException) {
+                response!!.sendError(HttpStatus.UNAUTHORIZED.value())
+                logger.info("Invalid JWT: $jwt")
             }
         }
     }
