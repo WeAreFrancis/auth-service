@@ -1,6 +1,6 @@
 package com.wearefrancis.auth.dto
 
-import com.wearefrancis.auth.NAME_MAX_LENGTH
+import com.wearefrancis.auth.USERNAME_REGEX
 import javax.validation.constraints.Pattern
 
 data class CreateUserDTO(
@@ -8,6 +8,6 @@ data class CreateUserDTO(
 
         override val password: String,
 
-        @get:Pattern(regexp = "^[A-z0-9]{3,$NAME_MAX_LENGTH}$")
+        @get:Pattern(regexp = USERNAME_REGEX)
         val username: String
 ) : WriteUserDTO

@@ -1,5 +1,6 @@
 package com.wearefrancis.auth.controller
 
+import com.wearefrancis.auth.USERNAME_REGEX
 import com.wearefrancis.auth.UUID_REGEX
 import com.wearefrancis.auth.domain.User
 import com.wearefrancis.auth.dto.CreateUserDTO
@@ -39,7 +40,7 @@ class UserController(
         return userService.getById(userId, currentUser)
     }
 
-    @GetMapping("/{username}")
+    @GetMapping("/{username:$USERNAME_REGEX}")
     fun getByUsername(@PathVariable username: String, principal: Principal): ReadUserDTO {
         val currentUser = userFromPrincipal(principal)
         return userService.getByUsername(username, currentUser)
