@@ -9,6 +9,7 @@ import com.wearefrancis.auth.dto.UpdateUserDTO
 import com.wearefrancis.auth.dto.mapper.ReadUserByAdminDTOMapper
 import com.wearefrancis.auth.dto.mapper.ReadUserByOwnerDTOMapper
 import com.wearefrancis.auth.security.CREATE_PERMISSION
+import com.wearefrancis.auth.security.DELETE_PERMISSION
 import com.wearefrancis.auth.security.UPDATE_PERMISSION
 import com.wearefrancis.auth.security.USER_TARGET_TYPE
 import com.wearefrancis.auth.service.UserService
@@ -32,6 +33,13 @@ class UserController(
     @ResponseStatus(HttpStatus.CREATED)
     fun create(@RequestBody @Valid userDTO: CreateUserDTO, principal: Principal?): ReadUserDTO {
         return userService.create(userDTO, principal != null)
+    }
+
+    @DeleteMapping("/{userId:$UUID_REGEX}")
+    @PreAuthorize("hasPermission(#userId, '$USER_TARGET_TYPE', '$DELETE_PERMISSION')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun delete(@PathVariable userId: UUID) {
+        userService.delete(userId)
     }
 
     @GetMapping("/{userId:$UUID_REGEX}")
