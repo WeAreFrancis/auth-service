@@ -22,11 +22,11 @@ class UserPermissionEvaluatorTest {
     @Test
     fun hasPermissionShouldThrowIllegalArgumentExceptionIfTargetTypeIsInvalid() {
         // GIVEN
-        val targetType = "user2"
+        val targetType = "${USER_TARGET_TYPE}2"
 
         try {
             // WHEN
-            userPermissionEvaluator.hasPermission(null, null, targetType, "create")
+            userPermissionEvaluator.hasPermission(null, null, targetType, CREATE_PERMISSION)
 
             // THEN
             fail()
@@ -39,11 +39,11 @@ class UserPermissionEvaluatorTest {
     @Test
     fun hasPermissionShouldThrowIllegalArgumentExceptionIfPermissionIsInvalid() {
         // GIVEN
-        val permission = "getById"
+        val permission = "${CREATE_PERMISSION}2"
 
         try {
             // WHEN
-            userPermissionEvaluator.hasPermission(null, null, "user", permission)
+            userPermissionEvaluator.hasPermission(null, null, USER_TARGET_TYPE, permission)
 
             // THEN
             fail()
@@ -60,7 +60,9 @@ class UserPermissionEvaluatorTest {
         whenever(authentication.principal).thenReturn(User())
 
         // WHEN
-        val hasPermission = userPermissionEvaluator.hasPermission(authentication, null, "user", "create")
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, null, USER_TARGET_TYPE, CREATE_PERMISSION
+        )
 
         // THEN
         assertThat(hasPermission).isFalse()
@@ -70,7 +72,7 @@ class UserPermissionEvaluatorTest {
     @Test
     fun hasPermissionShouldReturnTrueIfPermissionIsCreateAndCurrentUserIsAnonymous() {
         // WHEN
-        val hasPermission = userPermissionEvaluator.hasPermission(null, null, "user", "create")
+        val hasPermission = userPermissionEvaluator.hasPermission(null, null, USER_TARGET_TYPE, CREATE_PERMISSION)
 
         // THEN
         assertThat(hasPermission).isTrue()
@@ -85,7 +87,9 @@ class UserPermissionEvaluatorTest {
         ))
 
         // WHEN
-        val hasPermission = userPermissionEvaluator.hasPermission(authentication, null, "user", "create")
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, null, USER_TARGET_TYPE, CREATE_PERMISSION
+        )
 
         // THEN
         assertThat(hasPermission).isTrue()
@@ -101,7 +105,9 @@ class UserPermissionEvaluatorTest {
         ))
 
         // WHEN
-        val hasPermission = userPermissionEvaluator.hasPermission(authentication, null, "user", "create")
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, null, USER_TARGET_TYPE, CREATE_PERMISSION
+        )
 
         assertThat(hasPermission).isTrue()
         verify(authentication).principal
@@ -114,7 +120,9 @@ class UserPermissionEvaluatorTest {
         whenever(authentication.principal).thenReturn(User())
 
         // WHEN
-        val hasPermission = userPermissionEvaluator.hasPermission(authentication, UUID.randomUUID(), "user", "update")
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, UUID.randomUUID(), USER_TARGET_TYPE, UPDATE_PERMISSION
+        )
 
         // THEN
         assertThat(hasPermission).isFalse()
@@ -129,7 +137,9 @@ class UserPermissionEvaluatorTest {
         whenever(authentication.principal).thenReturn(user)
 
         // WHEN
-        val hasPermission = userPermissionEvaluator.hasPermission(authentication, user.id, "user", "update")
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, user.id, USER_TARGET_TYPE, UPDATE_PERMISSION
+        )
 
         // THEN
         assertThat(hasPermission).isTrue()
@@ -145,7 +155,9 @@ class UserPermissionEvaluatorTest {
         ))
 
         // WHEN
-        val hasPermission = userPermissionEvaluator.hasPermission(authentication, UUID.randomUUID(), "user", "update")
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, UUID.randomUUID(), USER_TARGET_TYPE, UPDATE_PERMISSION
+        )
 
         // THEN
         assertThat(hasPermission).isTrue()
@@ -161,7 +173,9 @@ class UserPermissionEvaluatorTest {
         ))
 
         // WHEN
-        val hasPermission = userPermissionEvaluator.hasPermission(authentication, UUID.randomUUID(), "user", "update")
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, UUID.randomUUID(), USER_TARGET_TYPE, UPDATE_PERMISSION
+        )
 
         // THEN
         assertThat(hasPermission).isTrue()

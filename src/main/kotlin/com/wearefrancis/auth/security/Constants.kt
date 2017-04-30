@@ -1,5 +1,10 @@
 package com.wearefrancis.auth.security
 
-internal val BEARER = "Bearer"
-internal val CLAIM_KEY_CREATED = "created"
-internal val CLAIM_KEY_USERNAME = "sub"
+const val USER_TARGET_TYPE = "user"
+
+const val CREATE_PERMISSION = "create"
+const val UPDATE_PERMISSION = "update"
+
+internal const val BEARER = "Bearer"
+internal const val CLAIM_KEY_CREATED = "created"
+internal const val CLAIM_KEY_USERNAME = "sub"
