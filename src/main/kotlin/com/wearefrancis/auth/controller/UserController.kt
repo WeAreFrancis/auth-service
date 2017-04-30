@@ -55,7 +55,7 @@ class UserController(
     }
 
     @PreAuthorize("hasPermission(#userId, '$USER_TARGET_TYPE', '$UPDATE_PERMISSION')")
-    @PutMapping("/{id:$UUID_REGEX}")
+    @PutMapping("/{userId:$UUID_REGEX}")
     fun update(
             @PathVariable userId: UUID, @RequestBody @Valid userDTO: UpdateUserDTO, principal: Principal
     ): ReadUserDTO {
