@@ -48,6 +48,14 @@ class UserService(
         }
     }
 
+    fun delete(userId: UUID) {
+        if (!userRepository.exists(userId)) {
+            throw EntityNotFoundException("User $userId not found")
+        }
+        userRepository.delete(userId)
+        logger.info("User $userId deleted")
+    }
+
     fun getById(userId: UUID, currentUser: User): ReadUserDTO {
         val user = userRepository.findOne(userId) ?: throw EntityNotFoundException("User $userId not found")
         return userModelToDTO(userId, user, currentUser)

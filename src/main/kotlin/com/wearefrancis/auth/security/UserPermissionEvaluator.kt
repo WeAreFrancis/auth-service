@@ -23,6 +23,8 @@ class UserPermissionEvaluator: PermissionEvaluator {
                         || currentUser.role in User.Role.ADMIN..User.Role.SUPER_ADMIN
                 UPDATE_PERMISSION -> currentUser!!.id == targetId
                         || currentUser.role in User.Role.ADMIN..User.Role.SUPER_ADMIN
+                DELETE_PERMISSION -> currentUser!!.id == targetId
+                        || currentUser.role == User.Role.SUPER_ADMIN
                 else -> throw IllegalArgumentException("Invalid permission: $permission")
             }
             else -> throw IllegalArgumentException("Invalid target type: $targetType")

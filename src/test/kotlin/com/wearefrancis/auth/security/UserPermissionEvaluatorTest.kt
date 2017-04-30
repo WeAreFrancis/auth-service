@@ -109,6 +109,74 @@ class UserPermissionEvaluatorTest {
                 authentication, null, USER_TARGET_TYPE, CREATE_PERMISSION
         )
 
+        // THEN
+        assertThat(hasPermission).isTrue()
+        verify(authentication).principal
+    }
+
+    @Test
+    fun hasPermissionShouldReturnFalseIfPermissionIsDeleteAndCurrentUserIsUser() {
+        // GIVEN
+        val authentication = mock<Authentication>()
+        whenever(authentication.principal).thenReturn(User())
+
+        // WHEN
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, UUID.randomUUID(), USER_TARGET_TYPE, DELETE_PERMISSION
+        )
+
+        assertThat(hasPermission).isFalse()
+        verify(authentication).principal
+    }
+
+    @Test
+    fun hasPermissionShouldReturnFalseIfPermissionIsDeleteAndCurrentUserIsAdmin() {
+        // GIVEN
+        val authentication = mock<Authentication>()
+        whenever(authentication.principal).thenReturn(User(
+                role = User.Role.ADMIN
+        ))
+
+        // WHEN
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, UUID.randomUUID(), USER_TARGET_TYPE, DELETE_PERMISSION
+        )
+
+        assertThat(hasPermission).isFalse()
+        verify(authentication).principal
+    }
+
+    @Test
+    fun hasPermissionShouldReturnTrueIfPermissionIsDeleteAndCurrentUserIsOwner() {
+        // GIVEN
+        val authentication = mock<Authentication>()
+        val user = User(
+                id = UUID.randomUUID()
+        )
+        whenever(authentication.principal).thenReturn(user)
+
+        // WHEN
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, user.id, USER_TARGET_TYPE, DELETE_PERMISSION
+        )
+
+        assertThat(hasPermission).isTrue()
+        verify(authentication).principal
+    }
+
+    @Test
+    fun hasPermissionShouldReturnTrueIfPermissionIsDeleteAndCurrentUserIsSuperAdmin() {
+        // GIVEN
+        val authentication = mock<Authentication>()
+        whenever(authentication.principal).thenReturn(User(
+                role = User.Role.SUPER_ADMIN
+        ))
+
+        // WHEN
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, UUID.randomUUID(), USER_TARGET_TYPE, DELETE_PERMISSION
+        )
+
         assertThat(hasPermission).isTrue()
         verify(authentication).principal
     }
