@@ -5,10 +5,7 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import com.wearefrancis.auth.domain.User
-import com.wearefrancis.auth.dto.ReadUserByAdminDTO
-import com.wearefrancis.auth.dto.ReadUserByOwnerDTO
-import com.wearefrancis.auth.dto.ReadUserByUserDTO
-import com.wearefrancis.auth.dto.WriteUserDTO
+import com.wearefrancis.auth.dto.*
 import com.wearefrancis.auth.dto.mapper.ReadUserByAdminDTOMapper
 import com.wearefrancis.auth.dto.mapper.ReadUserByOwnerDTOMapper
 import com.wearefrancis.auth.dto.mapper.ReadUserByUserDTOMapper
@@ -23,6 +20,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.util.*
 
 class UserServiceTest {
+    companion object {
+        val passwordEncoder = BCryptPasswordEncoder()
+    }
+
     private lateinit var readUserByAdminDTOMapper: ReadUserByAdminDTOMapper
     private lateinit var readUserByOwnerDTOMapper: ReadUserByOwnerDTOMapper
     private lateinit var readUserByUserDTOMapper: ReadUserByUserDTOMapper
@@ -36,7 +37,7 @@ class UserServiceTest {
         readUserByUserDTOMapper = mock<ReadUserByUserDTOMapper>()
         userRepository = mock<UserRepository>()
         userService = UserService(
-                passwordEncoder = BCryptPasswordEncoder(),
+                passwordEncoder = passwordEncoder,
                 readUserByAdminDTOMapper = readUserByAdminDTOMapper,
                 readUserByOwnerDTOMapper = readUserByOwnerDTOMapper,
                 readUserByUserDTOMapper = readUserByUserDTOMapper,
@@ -47,95 +48,74 @@ class UserServiceTest {
     @Test
     fun createShouldThrowObjectAlreadyExistsExceptionIfTheUsernameIsAlreadyUsed() {
         // GIVEN
-        val writeUserDTO = WriteUserDTO(
+        val createUserDTO = CreateUserDTO(
                 email = "gleroy@test.com",
                 password = "123456",
                 username = "gleroy"
         )
-        val readUserByOwnerDTO = ReadUserByOwnerDTO(
-                email = writeUserDTO.email,
-                username = writeUserDTO.username
-        )
-        whenever(userRepository.existsByUsername(writeUserDTO.username)).thenReturn(true)
-        whenever(userRepository.save(any<User>())).then({
-            invocation -> invocation.getArgumentAt(0, User::class.java)
-        })
-        whenever(readUserByOwnerDTOMapper.convert(any<User>())).thenReturn(readUserByOwnerDTO)
+        whenever(userRepository.existsByUsername(createUserDTO.username)).thenReturn(true)
 
         try {
             // WHEN
-            userService.create(writeUserDTO)
+            userService.create(createUserDTO)
 
             // THEN
-            verify(userRepository).existsByUsername(writeUserDTO.username)
-            verify(userRepository).existsByEmail(writeUserDTO.email)
-            verify(userRepository).save(any<User>())
-            verify(readUserByOwnerDTOMapper.convert(any<User>()))
             fail()
         } catch (exception: ObjectAlreadyExistsException) {
             // THEN
-            assertThat(exception.message).isEqualTo("Username ${writeUserDTO.username} already used")
+            assertThat(exception.message).isEqualTo("Username ${createUserDTO.username} already used")
+            verify(userRepository).existsByUsername(createUserDTO.username)
         }
     }
 
     @Test
     fun createShouldThrowObjectAlreadyExistsExceptionIfTheEmailIsAlreadyUsed() {
         // GIVEN
-        val writeUserDTO = WriteUserDTO(
+        val createUserDTO = CreateUserDTO(
                 email = "gleroy@test.com",
                 password = "123456",
                 username = "gleroy"
         )
-        val readUserByOwnerDTO = ReadUserByOwnerDTO(
-                email = writeUserDTO.email,
-                username = writeUserDTO.username
-        )
-        whenever(userRepository.existsByEmail(writeUserDTO.email)).thenReturn(true)
-        whenever(userRepository.save(any<User>())).then({
-            invocation -> invocation.getArgumentAt(0, User::class.java)
-        })
-        whenever(readUserByOwnerDTOMapper.convert(any<User>())).thenReturn(readUserByOwnerDTO)
+        whenever(userRepository.existsByEmail(createUserDTO.email)).thenReturn(true)
 
         try {
             // WHEN
-            userService.create(writeUserDTO)
+            userService.create(createUserDTO)
 
             // THEN
-            verify(userRepository).existsByUsername(writeUserDTO.username)
-            verify(userRepository).existsByEmail(writeUserDTO.email)
-            verify(userRepository).save(any<User>())
-            verify(readUserByOwnerDTOMapper.convert(any<User>()))
             fail()
         } catch (exception: ObjectAlreadyExistsException) {
             // THEN
-            assertThat(exception.message).isEqualTo("Email ${writeUserDTO.email} already used")
+            assertThat(exception.message).isEqualTo("Email ${createUserDTO.email} already used")
+            verify(userRepository).existsByUsername(createUserDTO.username)
+            verify(userRepository).existsByEmail(createUserDTO.email)
         }
     }
 
     @Test
     fun createShouldReturnReadUserByOwnerDTOIfByAdminIsFalse() {
         // GIVEN
-        val writeUserDTO = WriteUserDTO(
+        val createUserDTO = CreateUserDTO(
                 email = "gleroy@test.com",
                 password = "123456",
                 username = "gleroy"
         )
         val readUserByOwnerDTO = ReadUserByOwnerDTO(
-                email = writeUserDTO.email,
-                username = writeUserDTO.username
+                email = createUserDTO.email,
+                username = createUserDTO.username
         )
         whenever(userRepository.save(any<User>())).then({invocation ->
-            assertUserIsCreatedFromDTOAndReturnIt(invocation.getArgumentAt(0, User::class.java), writeUserDTO)
+            assertUserIsCreatedFromDTOAndReturnIt(invocation.getArgumentAt(0, User::class.java), createUserDTO)
         })
         whenever(readUserByOwnerDTOMapper.convert(any<User>())).thenReturn(readUserByOwnerDTO)
 
         // WHEN
-        val readUserDTO = userService.create(writeUserDTO)
+        val readUserDTO = userService.create(createUserDTO)
 
         // THEN
         assertThat(readUserDTO).isSameAs(readUserByOwnerDTO)
-        verify(userRepository).existsByUsername(writeUserDTO.username)
-        verify(userRepository).existsByEmail(writeUserDTO.email)
+        verify(userRepository).existsByUsername(createUserDTO.username)
+        verify(userRepository).existsByEmail(createUserDTO.email)
         verify(userRepository).save(any<User>())
         verify(readUserByOwnerDTOMapper).convert(any<User>())
     }
@@ -143,28 +123,28 @@ class UserServiceTest {
     @Test
     fun createShouldReturnReadUserByAdminDTOIfByAdminIsTrue() {
         // GIVEN
-        val writeUserDTO = WriteUserDTO(
+        val createUserDTO = CreateUserDTO(
                 email = "gleroy@test.com",
                 password = "123456",
                 username = "gleroy"
         )
         val readUserByAdminDTO = ReadUserByAdminDTO(
-                email = writeUserDTO.email,
+                email = createUserDTO.email,
                 enabled = true,
-                username = writeUserDTO.username
+                username = createUserDTO.username
         )
         whenever(userRepository.save(any<User>())).then({invocation ->
-            assertUserIsCreatedFromDTOAndReturnIt(invocation.getArgumentAt(0, User::class.java), writeUserDTO, true)
+            assertUserIsCreatedFromDTOAndReturnIt(invocation.getArgumentAt(0, User::class.java), createUserDTO, true)
         })
         whenever(readUserByAdminDTOMapper.convert(any<User>())).thenReturn(readUserByAdminDTO)
 
         // WHEN
-        val readUserDTO = userService.create(writeUserDTO, true)
+        val readUserDTO = userService.create(createUserDTO, true)
 
         // THEN
         assertThat(readUserDTO).isSameAs(readUserByAdminDTO)
-        verify(userRepository).existsByUsername(writeUserDTO.username)
-        verify(userRepository).existsByEmail(writeUserDTO.email)
+        verify(userRepository).existsByUsername(createUserDTO.username)
+        verify(userRepository).existsByEmail(createUserDTO.email)
         verify(userRepository).save(any<User>())
         verify(readUserByAdminDTOMapper).convert(any<User>())
     }
@@ -411,16 +391,149 @@ class UserServiceTest {
         verify(readUserByAdminDTOMapper).convert(user)
     }
 
+    @Test
+    fun updateShouldThrowEntityNotFoundExceptionIfTheUserThatHasTheGivenIdIsNotFound() {
+        // GIVEN
+        val user = User(
+                id = UUID.randomUUID()
+        )
+        val updateUserDTO = UpdateUserDTO(
+                email = "gleroy@test.com",
+                password = "123456"
+        )
+
+        try {
+            // WHEN
+            userService.update(user.id, updateUserDTO)
+
+            // THEN
+            fail()
+        } catch (exception: EntityNotFoundException) {
+            // THEN
+            assertThat(exception.message).isEqualTo("User ${user.id} not found")
+        }
+    }
+
+    @Test
+    fun updateShouldThrowObjectAlreadyExistsExceptionIfTheEmailIsAlreadyUsed() {
+        // GIVEN
+        val user = User(
+                id = UUID.randomUUID()
+        )
+        val updateUserDTO = UpdateUserDTO(
+                email = "gleroy@test.com",
+                password = "123456"
+        )
+        whenever(userRepository.findOne(user.id)).thenReturn(user)
+        whenever(userRepository.existsByEmail(updateUserDTO.email)).thenReturn(true)
+
+        try {
+            // WHEN
+            userService.update(user.id, updateUserDTO)
+
+            // THEN
+            fail()
+        } catch (exception: ObjectAlreadyExistsException) {
+            // THEN
+            assertThat(exception.message).isEqualTo("Email ${updateUserDTO.email} already used")
+            verify(userRepository).findOne(user.id)
+            verify(userRepository).existsByEmail(updateUserDTO.email)
+        }
+    }
+
+    @Test
+    fun updateShouldReturnReadUserByOwnerDTOIfByAdminIsFalse() {
+        // GIVEN
+        val user = User(
+                email = "gleroy@test.com",
+                enabled = true,
+                id = UUID.randomUUID(),
+                password = passwordEncoder.encode("1234567"),
+                role = User.Role.ADMIN,
+                username = "gleroy"
+        )
+        val updateUserDTO = UpdateUserDTO(
+                email = "gleroy2@test.com",
+                password = "123456"
+        )
+        val readUserByOwnerDTO = ReadUserByOwnerDTO(
+                email = updateUserDTO.email,
+                username = user.username
+        )
+        whenever(userRepository.findOne(user.id)).thenReturn(user)
+        whenever(userRepository.save(any<User>())).then({invocation ->
+            assertUserIsUpdatedFromDTOAndReturnIt(user, invocation.getArgumentAt(0, User::class.java), updateUserDTO)
+        })
+        whenever(readUserByOwnerDTOMapper.convert(any<User>())).thenReturn(readUserByOwnerDTO)
+
+        // WHEN
+        val readUserDTO = userService.update(user.id, updateUserDTO)
+
+        // THEN
+        assertThat(readUserDTO).isSameAs(readUserByOwnerDTO)
+        verify(userRepository).findOne(user.id)
+        verify(userRepository).existsByEmail(updateUserDTO.email)
+        verify(userRepository).save(any<User>())
+        verify(readUserByOwnerDTOMapper).convert(any<User>())
+    }
+
+    @Test
+    fun updateShouldReturnReadUserByAdminDTOIfByAdminIsTrue() {
+        // GIVEN
+        val user = User(
+                email = "gleroy@test.com",
+                enabled = true,
+                id = UUID.randomUUID(),
+                password = passwordEncoder.encode("1234567"),
+                role = User.Role.ADMIN,
+                username = "gleroy"
+        )
+        val updateUserDTO = UpdateUserDTO(
+                email = "gleroy2@test.com",
+                password = "123456"
+        )
+        val readUserByAdminDTO = ReadUserByAdminDTO(
+                email = updateUserDTO.email,
+                username = user.username
+        )
+        whenever(userRepository.findOne(user.id)).thenReturn(user)
+        whenever(userRepository.save(any<User>())).then({invocation ->
+            assertUserIsUpdatedFromDTOAndReturnIt(user, invocation.getArgumentAt(0, User::class.java), updateUserDTO)
+        })
+        whenever(readUserByAdminDTOMapper.convert(any<User>())).thenReturn(readUserByAdminDTO)
+
+        // WHEN
+        val readUserDTO = userService.update(user.id, updateUserDTO, true)
+
+        // THEN
+        assertThat(readUserDTO).isSameAs(readUserByAdminDTO)
+        verify(userRepository).findOne(user.id)
+        verify(userRepository).existsByEmail(updateUserDTO.email)
+        verify(userRepository).save(any<User>())
+        verify(readUserByAdminDTOMapper).convert(any<User>())
+    }
+
     private fun assertUserIsCreatedFromDTOAndReturnIt(
-            user: User, writeUserDTO: WriteUserDTO, byAdmin: Boolean = false
+            user: User, userDTO: CreateUserDTO, byAdmin: Boolean = false
     ): User {
-        assertThat(user.email).isEqualTo(writeUserDTO.email)
+        assertThat(user.email).isEqualTo(userDTO.email)
         assertThat(user.enabled).isEqualTo(byAdmin)
-        assertThat(user.role).isEqualTo(User.Role.USER)
         assertThat(user.isAccountNonExpired).isTrue()
         assertThat(user.isAccountNonLocked).isTrue()
         assertThat(user.isCredentialsNonExpired).isTrue()
-        assertThat(user.isEnabled).isEqualTo(user.enabled)
+        assertThat(passwordEncoder.matches(userDTO.password, user.password)).isTrue()
+        assertThat(user.role).isEqualTo(User.Role.USER)
+        return user
+    }
+
+    private fun assertUserIsUpdatedFromDTOAndReturnIt(userToUpdate: User, user: User, userDTO: UpdateUserDTO): User {
+        assertThat(user.email).isEqualTo(userDTO.email)
+        assertThat(user.enabled).isEqualTo(userToUpdate.enabled)
+        assertThat(user.isAccountNonExpired).isEqualTo(userToUpdate.isAccountNonExpired)
+        assertThat(user.isAccountNonLocked).isEqualTo(userToUpdate.isAccountNonLocked)
+        assertThat(user.isCredentialsNonExpired).isEqualTo(userToUpdate.isCredentialsNonExpired)
+        assertThat(passwordEncoder.matches(userDTO.password, user.password)).isTrue()
+        assertThat(user.role).isEqualTo(userToUpdate.role)
         return user
     }
 }

@@ -1,7 +1,9 @@
 package com.wearefrancis.auth.service
 
 import com.wearefrancis.auth.domain.User
+import com.wearefrancis.auth.dto.CreateUserDTO
 import com.wearefrancis.auth.dto.ReadUserDTO
+import com.wearefrancis.auth.dto.UpdateUserDTO
 import com.wearefrancis.auth.dto.WriteUserDTO
 import com.wearefrancis.auth.dto.mapper.ReadUserByAdminDTOMapper
 import com.wearefrancis.auth.dto.mapper.ReadUserByOwnerDTOMapper
@@ -27,7 +29,7 @@ class UserService(
         val logger = LoggerFactory.getLogger(UserService::class.java)!!
     }
 
-    fun create(userDTO: WriteUserDTO, byAdmin: Boolean = false): ReadUserDTO {
+    fun create(userDTO: CreateUserDTO, byAdmin: Boolean = false): ReadUserDTO {
         if (userRepository.existsByUsername(userDTO.username)) {
             throw ObjectAlreadyExistsException("Username ${userDTO.username} already used")
         }
@@ -55,6 +57,22 @@ class UserService(
     fun getByUsername(username: String, currentUser: User): ReadUserDTO {
         val user = userRepository.findByUsername(username) ?: throw EntityNotFoundException("User $username not found")
         return userModelToDTO(username, user, currentUser)
+    }
+
+    fun update(userId: UUID, userDTO: UpdateUserDTO, byAdmin: Boolean = false): ReadUserDTO {
+        val userToUpdate = userRepository.findOne(userId) ?: throw EntityNotFoundException("User $userId not found")
+        if (userRepository.existsByEmail(userDTO.email)) {
+            throw ObjectAlreadyExistsException("Email ${userDTO.email} already used")
+        }
+        val user = userToUpdate.copy(
+                email = userDTO.email,
+                password = passwordEncoder.encode(userDTO.password)
+        )
+        logger.info("User ${user.username} updated")
+        return when (byAdmin) {
+            true -> readUserByAdminDTOMapper.convert(userRepository.save(user))
+            false -> readUserByOwnerDTOMapper.convert(userRepository.save(user))
+        }
     }
 
     private fun userModelToDTO(id: Serializable, user: User, currentUser: User): ReadUserDTO = when {
