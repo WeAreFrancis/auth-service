@@ -53,29 +53,18 @@ class UserServiceTest {
                 password = "123456",
                 username = "gleroy"
         )
-        val readUserByOwnerDTO = ReadUserByOwnerDTO(
-                email = createUserDTO.email,
-                username = createUserDTO.username
-        )
         whenever(userRepository.existsByUsername(createUserDTO.username)).thenReturn(true)
-        whenever(userRepository.save(any<User>())).then({
-            invocation -> invocation.getArgumentAt(0, User::class.java)
-        })
-        whenever(readUserByOwnerDTOMapper.convert(any<User>())).thenReturn(readUserByOwnerDTO)
 
         try {
             // WHEN
             userService.create(createUserDTO)
 
             // THEN
-            verify(userRepository).existsByUsername(createUserDTO.username)
-            verify(userRepository).existsByEmail(createUserDTO.email)
-            verify(userRepository).save(any<User>())
-            verify(readUserByOwnerDTOMapper.convert(any<User>()))
             fail()
         } catch (exception: ObjectAlreadyExistsException) {
             // THEN
             assertThat(exception.message).isEqualTo("Username ${createUserDTO.username} already used")
+            verify(userRepository).existsByUsername(createUserDTO.username)
         }
     }
 
@@ -87,29 +76,19 @@ class UserServiceTest {
                 password = "123456",
                 username = "gleroy"
         )
-        val readUserByOwnerDTO = ReadUserByOwnerDTO(
-                email = createUserDTO.email,
-                username = createUserDTO.username
-        )
         whenever(userRepository.existsByEmail(createUserDTO.email)).thenReturn(true)
-        whenever(userRepository.save(any<User>())).then({
-            invocation -> invocation.getArgumentAt(0, User::class.java)
-        })
-        whenever(readUserByOwnerDTOMapper.convert(any<User>())).thenReturn(readUserByOwnerDTO)
 
         try {
             // WHEN
             userService.create(createUserDTO)
 
             // THEN
-            verify(userRepository).existsByUsername(createUserDTO.username)
-            verify(userRepository).existsByEmail(createUserDTO.email)
-            verify(userRepository).save(any<User>())
-            verify(readUserByOwnerDTOMapper.convert(any<User>()))
             fail()
         } catch (exception: ObjectAlreadyExistsException) {
             // THEN
             assertThat(exception.message).isEqualTo("Email ${createUserDTO.email} already used")
+            verify(userRepository).existsByUsername(createUserDTO.username)
+            verify(userRepository).existsByEmail(createUserDTO.email)
         }
     }
 
