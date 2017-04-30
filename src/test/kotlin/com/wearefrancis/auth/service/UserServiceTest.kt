@@ -150,6 +150,38 @@ class UserServiceTest {
     }
 
     @Test
+    fun deleteShouldThrowEntityNotFoundExceptionIfTheUserThatHasTheGivenIdIsNotFound() {
+        // GIVEN
+        val userId = UUID.randomUUID()
+
+        try {
+            // WHEN
+            userService.delete(userId)
+
+            // THEN
+            fail()
+        } catch (exception: EntityNotFoundException) {
+            // THEN
+            assertThat(exception.message).isEqualTo("User $userId not found")
+            verify(userRepository).exists(userId)
+        }
+    }
+
+    @Test
+    fun deleteShouldDeleteUser() {
+        // GIVEN
+        val userId = UUID.randomUUID()
+        whenever(userRepository.exists(userId)).thenReturn(true)
+
+        // WHEN
+        userService.delete(userId)
+
+        // THEN
+        verify(userRepository).exists(userId)
+        verify(userRepository).delete(userId)
+    }
+
+    @Test
     fun getByIdShouldThrowEntityNotFoundExceptionIfTheUserThatHasTheGivenIdIsNotFound() {
         // GIVEN
         val id = UUID.randomUUID()
