@@ -425,7 +425,7 @@ class UserServiceTest {
                 password = "123456"
         )
         whenever(userRepository.findOne(user.id)).thenReturn(user)
-        whenever(userRepository.existsByEmail(updateUserDTO.email)).thenReturn(true)
+        whenever(userRepository.existsByEmailAndIdNot(updateUserDTO.email, user.id)).thenReturn(true)
 
         try {
             // WHEN
@@ -437,7 +437,7 @@ class UserServiceTest {
             // THEN
             assertThat(exception.message).isEqualTo("Email ${updateUserDTO.email} already used")
             verify(userRepository).findOne(user.id)
-            verify(userRepository).existsByEmail(updateUserDTO.email)
+            verify(userRepository).existsByEmailAndIdNot(updateUserDTO.email, user.id)
         }
     }
 
@@ -472,7 +472,7 @@ class UserServiceTest {
         // THEN
         assertThat(readUserDTO).isSameAs(readUserByOwnerDTO)
         verify(userRepository).findOne(user.id)
-        verify(userRepository).existsByEmail(updateUserDTO.email)
+        verify(userRepository).existsByEmailAndIdNot(updateUserDTO.email, user.id)
         verify(userRepository).save(any<User>())
         verify(readUserByOwnerDTOMapper).convert(any<User>())
     }
@@ -508,7 +508,7 @@ class UserServiceTest {
         // THEN
         assertThat(readUserDTO).isSameAs(readUserByAdminDTO)
         verify(userRepository).findOne(user.id)
-        verify(userRepository).existsByEmail(updateUserDTO.email)
+        verify(userRepository).existsByEmailAndIdNot(updateUserDTO.email, user.id)
         verify(userRepository).save(any<User>())
         verify(readUserByAdminDTOMapper).convert(any<User>())
     }

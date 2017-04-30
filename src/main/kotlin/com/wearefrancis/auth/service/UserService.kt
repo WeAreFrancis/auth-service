@@ -61,7 +61,7 @@ class UserService(
 
     fun update(userId: UUID, userDTO: UpdateUserDTO, byAdmin: Boolean = false): ReadUserDTO {
         val userToUpdate = userRepository.findOne(userId) ?: throw EntityNotFoundException("User $userId not found")
-        if (userRepository.existsByEmail(userDTO.email)) {
+        if (userRepository.existsByEmailAndIdNot(userDTO.email, userId)) {
             throw ObjectAlreadyExistsException("Email ${userDTO.email} already used")
         }
         val user = userToUpdate.copy(
