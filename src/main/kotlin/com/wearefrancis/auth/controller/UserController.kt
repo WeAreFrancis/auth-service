@@ -31,22 +31,17 @@ class UserController(
     @PostMapping
     @PreAuthorize("hasPermission(null, '$USER_TARGET_TYPE', '$CREATE_PERMISSION')")
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@RequestBody @Valid userDTO: CreateUserDTO, principal: Principal?): ReadUserDTO {
-        return userService.create(userDTO, principal != null)
-    }
+    fun create(@RequestBody @Valid userDTO: CreateUserDTO, principal: Principal?): ReadUserDTO
+            = userService.create(userDTO, principal != null)
 
     @DeleteMapping("/{userId:$UUID_REGEX}")
     @PreAuthorize("hasPermission(#userId, '$USER_TARGET_TYPE', '$DELETE_PERMISSION')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun delete(@PathVariable userId: UUID) {
-        userService.delete(userId)
-    }
+    fun delete(@PathVariable userId: UUID) = userService.delete(userId)
 
     @PreAuthorize("hasPermission(#userId, '$USER_TARGET_TYPE', '$ENABLE_PERMISSION')")
     @PutMapping("/{userId:$UUID_REGEX}/enable")
-    fun enable(@PathVariable userId: UUID): ReadUserByAdminDTO {
-        return userService.enable(userId)
-    }
+    fun enable(@PathVariable userId: UUID): ReadUserByAdminDTO = userService.enable(userId)
 
     @GetMapping("/{userId:$UUID_REGEX}")
     fun getById(@PathVariable userId: UUID, principal: Principal): ReadUserDTO {
