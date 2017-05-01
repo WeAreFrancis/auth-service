@@ -309,9 +309,7 @@ class UserServiceTest {
     @Test
     fun getByIdShouldReturnReadUserByUserDTOIfCurrentUserIsUser() {
         // GIVEN
-        val user = User(
-                id = UUID.randomUUID()
-        )
+        val user = User()
         val currentUser = User()
         val readUserByUserDTO = ReadUserByUserDTO(
                 id = user.id,
@@ -332,9 +330,7 @@ class UserServiceTest {
     @Test
     fun getByIdShouldReturnReadUserByOwnerDTOIfCurrentUserHasTheGivenId() {
         // GIVEN
-        val user = User(
-                id = UUID.randomUUID()
-        )
+        val user = User()
         val currentUser = User(
                 id = user.id
         )
@@ -359,9 +355,7 @@ class UserServiceTest {
     @Test
     fun getByIdShouldReturnReadUserByAdminDTOIfCurrentUserIsAdmin() {
         // GIVEN
-        val user = User(
-                id = UUID.randomUUID()
-        )
+        val user = User()
         val currentUser = User(
                 role = User.Role.ADMIN
         )
@@ -385,9 +379,7 @@ class UserServiceTest {
     @Test
     fun getByIdShouldReturnReadUserByAdminDTOIfCurrentUserIsSuperAdmin() {
         // GIVEN
-        val user = User(
-                id = UUID.randomUUID()
-        )
+        val user = User()
         val currentUser = User(
                 role = User.Role.SUPER_ADMIN
         )
@@ -632,9 +624,7 @@ class UserServiceTest {
     @Test
     fun updateShouldThrowEntityNotFoundExceptionIfTheUserThatHasTheGivenIdIsNotFound() {
         // GIVEN
-        val user = User(
-                id = UUID.randomUUID()
-        )
+        val user = User()
         val updateUserDTO = UpdateUserDTO(
                 email = "gleroy@test.com",
                 password = "123456"
@@ -655,9 +645,7 @@ class UserServiceTest {
     @Test
     fun updateShouldThrowObjectAlreadyExistsExceptionIfTheEmailIsAlreadyUsed() {
         // GIVEN
-        val user = User(
-                id = UUID.randomUUID()
-        )
+        val user = User()
         val updateUserDTO = UpdateUserDTO(
                 email = "gleroy@test.com",
                 password = "123456"
@@ -685,7 +673,6 @@ class UserServiceTest {
         val user = User(
                 email = "gleroy@test.com",
                 enabled = true,
-                id = UUID.randomUUID(),
                 password = passwordEncoder.encode("1234567"),
                 role = User.Role.ADMIN,
                 username = "gleroy"
@@ -721,7 +708,6 @@ class UserServiceTest {
         val user = User(
                 email = "gleroy@test.com",
                 enabled = true,
-                id = UUID.randomUUID(),
                 password = passwordEncoder.encode("1234567"),
                 role = User.Role.ADMIN,
                 username = "gleroy"
