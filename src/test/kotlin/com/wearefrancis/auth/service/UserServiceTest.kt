@@ -27,6 +27,7 @@ class UserServiceTest {
     private lateinit var readUserByAdminDTOMapper: ReadUserByAdminDTOMapper
     private lateinit var readUserByOwnerDTOMapper: ReadUserByOwnerDTOMapper
     private lateinit var readUserByUserDTOMapper: ReadUserByUserDTOMapper
+    private lateinit var tokenService: TokenService
     private lateinit var userRepository: UserRepository
     private lateinit var userService: UserService
 
@@ -35,12 +36,14 @@ class UserServiceTest {
         readUserByAdminDTOMapper = mock<ReadUserByAdminDTOMapper>()
         readUserByOwnerDTOMapper = mock<ReadUserByOwnerDTOMapper>()
         readUserByUserDTOMapper = mock<ReadUserByUserDTOMapper>()
+        tokenService = mock<TokenService>()
         userRepository = mock<UserRepository>()
         userService = UserService(
                 passwordEncoder = passwordEncoder,
                 readUserByAdminDTOMapper = readUserByAdminDTOMapper,
                 readUserByOwnerDTOMapper = readUserByOwnerDTOMapper,
                 readUserByUserDTOMapper = readUserByUserDTOMapper,
+                tokenService = tokenService,
                 userRepository = userRepository
         )
     }
