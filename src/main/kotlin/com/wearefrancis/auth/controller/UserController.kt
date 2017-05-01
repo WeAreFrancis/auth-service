@@ -69,7 +69,7 @@ class UserController(
 
     @PreAuthorize("hasPermission(#userId, '$USER_TARGET_TYPE', '$LOCK_PERMISSION')")
     @PutMapping("/{userId:$UUID_REGEX}/lock")
-    fun lock(userId: UUID): ReadUserByAdminDTO = userService.lock(userId)
+    fun lock(@PathVariable userId: UUID): ReadUserByAdminDTO = userService.lock(userId)
 
     @PreAuthorize("hasPermission(#userId, '$USER_TARGET_TYPE', '$UPDATE_PERMISSION')")
     @PutMapping("/{userId:$UUID_REGEX}")
