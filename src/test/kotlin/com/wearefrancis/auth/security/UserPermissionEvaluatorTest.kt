@@ -182,6 +182,75 @@ class UserPermissionEvaluatorTest {
     }
 
     @Test
+    fun hasPermissionShouldReturnFalseIfPermissionIsEnableAndUserIsUser() {
+        // GIVEN
+        val authentication = mock<Authentication>()
+        whenever(authentication.principal).thenReturn(User())
+
+        // WHEN
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, UUID.randomUUID(), USER_TARGET_TYPE, ENABLE_PERMISSION
+        )
+
+        // THEN
+        assertThat(hasPermission).isFalse()
+        verify(authentication).principal
+    }
+
+    @Test
+    fun hasPermissionShouldReturnFalseIfPermissionIsEnableAndUserIsOwner() {
+        // GIVEN
+        val authentication = mock<Authentication>()
+        val user = User()
+        whenever(authentication.principal).thenReturn(user)
+
+        // WHEN
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, user.id, USER_TARGET_TYPE, ENABLE_PERMISSION
+        )
+
+        // THEN
+        assertThat(hasPermission).isFalse()
+        verify(authentication).principal
+    }
+
+    @Test
+    fun hasPermissionShouldReturnTrueIfPermissionIsEnableAndUserIsAdmin() {
+        // GIVEN
+        val authentication = mock<Authentication>()
+        whenever(authentication.principal).thenReturn(User(
+                role = User.Role.ADMIN
+        ))
+
+        // WHEN
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, UUID.randomUUID(), USER_TARGET_TYPE, ENABLE_PERMISSION
+        )
+
+        // THEN
+        assertThat(hasPermission).isTrue()
+        verify(authentication).principal
+    }
+
+    @Test
+    fun hasPermissionShouldReturnTrueIfPermissionIsEnableAndUserIsSuperAdmin() {
+        // GIVEN
+        val authentication = mock<Authentication>()
+        whenever(authentication.principal).thenReturn(User(
+                role = User.Role.SUPER_ADMIN
+        ))
+
+        // WHEN
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, UUID.randomUUID(), USER_TARGET_TYPE, ENABLE_PERMISSION
+        )
+
+        // THEN
+        assertThat(hasPermission).isTrue()
+        verify(authentication).principal
+    }
+
+    @Test
     fun hasPermissionShouldReturnFalseIfPermissionIsUpdateAndCurrentUserIsUser() {
         // GIVEN
         val authentication = mock<Authentication>()
