@@ -88,6 +88,16 @@ class UserService(
         return readUserByAdminDTOMapper.convert(userLocked)
     }
 
+    fun unlock(userId: UUID): ReadUserByAdminDTO {
+        val userToUnlock = userRepository.findOne(userId) ?: throw EntityNotFoundException("User $userId not found")
+        val user = userToUnlock.copy(
+                locked = false
+        )
+        val userUnlocked = userRepository.save(user)
+        logger.info("User ${userUnlocked.username} unlocked")
+        return readUserByAdminDTOMapper.convert(userUnlocked)
+    }
+
     fun update(userId: UUID, userDTO: UpdateUserDTO, byAdmin: Boolean = false): ReadUserDTO {
         val userToUpdate = userRepository.findOne(userId) ?: throw EntityNotFoundException("User $userId not found")
         if (userRepository.existsByEmailAndIdNot(userDTO.email, userId)) {
