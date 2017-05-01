@@ -13,9 +13,9 @@ class UserPermissionEvaluator: PermissionEvaluator {
     override fun hasPermission(
             authentication: Authentication?, targetId: Serializable?, targetType: String?, permission: Any?
     ): Boolean {
-        val currentUser = when (authentication) {
-            null -> null
-            else -> authentication.principal as User
+        val currentUser = when (authentication?.principal) {
+            is User -> authentication.principal as User
+            else -> null
         }
         return when (targetType) {
             USER_TARGET_TYPE -> when (permission) {

@@ -1,6 +1,7 @@
 package com.wearefrancis.auth.security
 
 import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import com.wearefrancis.auth.domain.User
@@ -66,7 +67,7 @@ class UserPermissionEvaluatorTest {
 
         // THEN
         assertThat(hasPermission).isFalse()
-        verify(authentication).principal
+        verify(authentication, times(2)).principal
     }
 
     @Test
@@ -93,7 +94,7 @@ class UserPermissionEvaluatorTest {
 
         // THEN
         assertThat(hasPermission).isTrue()
-        verify(authentication).principal
+        verify(authentication, times(2)).principal
     }
 
     @Test
@@ -111,7 +112,7 @@ class UserPermissionEvaluatorTest {
 
         // THEN
         assertThat(hasPermission).isTrue()
-        verify(authentication).principal
+        verify(authentication, times(2)).principal
     }
 
     @Test
@@ -126,7 +127,7 @@ class UserPermissionEvaluatorTest {
         )
 
         assertThat(hasPermission).isFalse()
-        verify(authentication).principal
+        verify(authentication, times(2)).principal
     }
 
     @Test
@@ -143,7 +144,7 @@ class UserPermissionEvaluatorTest {
         )
 
         assertThat(hasPermission).isFalse()
-        verify(authentication).principal
+        verify(authentication, times(2)).principal
     }
 
     @Test
@@ -161,7 +162,7 @@ class UserPermissionEvaluatorTest {
         )
 
         assertThat(hasPermission).isTrue()
-        verify(authentication).principal
+        verify(authentication, times(2)).principal
     }
 
     @Test
@@ -178,7 +179,7 @@ class UserPermissionEvaluatorTest {
         )
 
         assertThat(hasPermission).isTrue()
-        verify(authentication).principal
+        verify(authentication, times(2)).principal
     }
 
     @Test
@@ -194,7 +195,7 @@ class UserPermissionEvaluatorTest {
 
         // THEN
         assertThat(hasPermission).isFalse()
-        verify(authentication).principal
+        verify(authentication, times(2)).principal
     }
 
     @Test
@@ -211,7 +212,7 @@ class UserPermissionEvaluatorTest {
 
         // THEN
         assertThat(hasPermission).isTrue()
-        verify(authentication).principal
+        verify(authentication, times(2)).principal
     }
 
     @Test
@@ -229,7 +230,7 @@ class UserPermissionEvaluatorTest {
 
         // THEN
         assertThat(hasPermission).isTrue()
-        verify(authentication).principal
+        verify(authentication, times(2)).principal
     }
 
     @Test
@@ -247,6 +248,6 @@ class UserPermissionEvaluatorTest {
 
         // THEN
         assertThat(hasPermission).isTrue()
-        verify(authentication).principal
+        verify(authentication, times(2)).principal
     }
 }
