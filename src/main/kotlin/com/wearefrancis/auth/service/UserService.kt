@@ -42,10 +42,11 @@ class UserService(
                 password = passwordEncoder.encode(userDTO.password),
                 username = userDTO.username
         )
-        logger.info("User ${user.username} created")
+        val userCreated = userRepository.save(user)
+        logger.info("User ${userCreated.username} created")
         return when (byAdmin) {
-            true -> readUserByAdminDTOMapper.convert(userRepository.save(user))
-            false -> readUserByOwnerDTOMapper.convert(userRepository.save(user))
+            true -> readUserByAdminDTOMapper.convert(userCreated)
+            false -> readUserByOwnerDTOMapper.convert(userCreated)
         }
     }
 
@@ -62,7 +63,9 @@ class UserService(
         val user = userToEnable.copy(
                 enabled = true
         )
-        return readUserByAdminDTOMapper.convert(userRepository.save(user))
+        val userEnabled = userRepository.save(user)
+        logger.info("User ${userEnabled.username} enabled")
+        return readUserByAdminDTOMapper.convert(userEnabled)
     }
 
     fun getById(userId: UUID, currentUser: User): ReadUserDTO {
@@ -84,10 +87,11 @@ class UserService(
                 email = userDTO.email,
                 password = passwordEncoder.encode(userDTO.password)
         )
-        logger.info("User ${user.username} updated")
+        val userUpdated = userRepository.save(user)
+        logger.info("User ${userUpdated.username} updated")
         return when (byAdmin) {
-            true -> readUserByAdminDTOMapper.convert(userRepository.save(user))
-            false -> readUserByOwnerDTOMapper.convert(userRepository.save(user))
+            true -> readUserByAdminDTOMapper.convert(userUpdated)
+            false -> readUserByOwnerDTOMapper.convert(userUpdated)
         }
     }
 
