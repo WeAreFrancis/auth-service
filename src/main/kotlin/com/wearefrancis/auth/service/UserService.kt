@@ -78,6 +78,16 @@ class UserService(
         return userModelToDTO(username, user, currentUser)
     }
 
+    fun lock(userId: UUID): ReadUserByAdminDTO {
+        val userToLock = userRepository.findOne(userId) ?: throw EntityNotFoundException("User $userId not found")
+        val user = userToLock.copy(
+                locked = true
+        )
+        val userLocked = userRepository.save(user)
+        logger.info("User ${userLocked.username} locked")
+        return readUserByAdminDTOMapper.convert(userLocked)
+    }
+
     fun update(userId: UUID, userDTO: UpdateUserDTO, byAdmin: Boolean = false): ReadUserDTO {
         val userToUpdate = userRepository.findOne(userId) ?: throw EntityNotFoundException("User $userId not found")
         if (userRepository.existsByEmailAndIdNot(userDTO.email, userId)) {

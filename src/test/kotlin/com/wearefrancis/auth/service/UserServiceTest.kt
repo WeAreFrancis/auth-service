@@ -474,6 +474,56 @@ class UserServiceTest {
     }
 
     @Test
+    fun lockShouldThrowEntityNotFoundExceptionIfUserThatHasTheGivenIdIsNotFound() {
+        // GIVEN
+        val userId = UUID.randomUUID()
+
+        try {
+            // WHEN
+            userService.lock(userId)
+
+            // THEN
+            fail()
+        } catch (exception: EntityNotFoundException) {
+            // THEN
+            assertThat(exception.message).isEqualTo("User $userId not found")
+            verify(userRepository).findOne(userId)
+        }
+    }
+
+    @Test
+    fun lockShouldLockUser() {
+        // GIVEN
+        val user = User()
+        val readUserByAdminDTO = ReadUserByAdminDTO(
+                email = user.email,
+                username = user.username
+        )
+        whenever(userRepository.findOne(user.id)).thenReturn(user)
+        whenever(userRepository.save(any<User>())).then(fun (invocation): User {
+            val model = invocation.getArgumentAt(0, User::class.java)
+            assertThat(model.email).isEqualTo(user.email)
+            assertThat(model.enabled).isEqualTo(user.enabled)
+            assertThat(model.isAccountNonExpired).isEqualTo(user.isAccountNonExpired)
+            assertThat(model.isAccountNonLocked).isFalse()
+            assertThat(model.isCredentialsNonExpired).isEqualTo(user.isCredentialsNonExpired)
+            assertThat(model.password).isEqualTo(user.password)
+            assertThat(model.role).isEqualTo(user.role)
+            return model
+        })
+        whenever(readUserByAdminDTOMapper.convert(any<User>())).thenReturn(readUserByAdminDTO)
+
+        // WHEN
+        val readUserDTO = userService.lock(user.id)
+
+        // THEN
+        assertThat(readUserDTO).isSameAs(readUserByAdminDTO)
+        verify(userRepository).findOne(user.id)
+        verify(userRepository).save(any<User>())
+        verify(readUserByAdminDTOMapper).convert(any<User>())
+    }
+
+    @Test
     fun updateShouldThrowEntityNotFoundExceptionIfTheUserThatHasTheGivenIdIsNotFound() {
         // GIVEN
         val user = User(

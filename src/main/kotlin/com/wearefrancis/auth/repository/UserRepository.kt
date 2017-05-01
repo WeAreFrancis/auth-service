@@ -25,6 +25,14 @@ interface UserRepository : CrudRepository<User, UUID> {
     @Query("""
             SELECT COUNT(user) > 0
             FROM User user
+            WHERE user.id = :userId
+                    AND user.role = :role
+    """)
+    fun existsByIdAndRole(@Param("userId") userId: UUID, @Param("role") role: User.Role): Boolean
+
+    @Query("""
+            SELECT COUNT(user) > 0
+            FROM User user
             WHERE user.username = :username
     """)
     fun existsByUsername(@Param("username") username: String): Boolean

@@ -5,6 +5,7 @@ import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import com.wearefrancis.auth.domain.User
+import com.wearefrancis.auth.repository.UserRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assert.fail
 import org.junit.Before
@@ -14,10 +15,12 @@ import java.util.*
 
 class UserPermissionEvaluatorTest {
     private lateinit var userPermissionEvaluator: UserPermissionEvaluator
+    private lateinit var userRepository: UserRepository
 
     @Before
     fun setUp() {
-        userPermissionEvaluator = UserPermissionEvaluator()
+        userRepository = mock<UserRepository>()
+        userPermissionEvaluator = UserPermissionEvaluator(userRepository)
     }
 
     @Test
@@ -249,6 +252,159 @@ class UserPermissionEvaluatorTest {
         // THEN
         assertThat(hasPermission).isTrue()
         verify(authentication, times(2)).principal
+    }
+
+    @Test
+    fun hasPermissionShouldReturnFalseIfPermissionIsLockAndUserIsUser() {
+        // GIVEN
+        val authentication = mock<Authentication>()
+        whenever(authentication.principal).thenReturn(User())
+
+        // WHEN
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, UUID.randomUUID(), USER_TARGET_TYPE, LOCK_PERMISSION
+        )
+
+        // THEN
+        assertThat(hasPermission).isFalse()
+        verify(authentication, times(2)).principal
+    }
+
+    @Test
+    fun hasPermissionShouldReturnFalseIfPermissionIsLockAndUserIsOwner() {
+        // GIVEN
+        val authentication = mock<Authentication>()
+        val user = User()
+        whenever(authentication.principal).thenReturn(user)
+
+        // WHEN
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, user.id, USER_TARGET_TYPE, LOCK_PERMISSION
+        )
+
+        // THEN
+        assertThat(hasPermission).isFalse()
+        verify(authentication, times(2)).principal
+    }
+
+    @Test
+    fun hasPermissionShouldReturnFalseIfPermissionIsLockAndUserIsAdminButOwner() {
+        // GIVEN
+        val authentication = mock<Authentication>()
+        val user = User(
+                role = User.Role.ADMIN
+        )
+        whenever(authentication.principal).thenReturn(user)
+
+        // WHEN
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, user.id, USER_TARGET_TYPE, LOCK_PERMISSION
+        )
+
+        // THEN
+        assertThat(hasPermission).isFalse()
+        verify(authentication, times(2)).principal
+    }
+
+    @Test
+    fun hasPermissionShouldReturnFalseIfPermissionIsLockAndUserIsAdminButUserToLockIsSuperAdmin() {
+        // GIVEN
+        val authentication = mock<Authentication>()
+        val targetId = UUID.randomUUID()
+        whenever(authentication.principal).thenReturn(User(
+                role = User.Role.ADMIN
+        ))
+        whenever(userRepository.existsByIdAndRole(targetId, User.Role.SUPER_ADMIN)).thenReturn(true)
+
+        // WHEN
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, targetId, USER_TARGET_TYPE, LOCK_PERMISSION
+        )
+
+        // THEN
+        assertThat(hasPermission).isFalse()
+        verify(authentication, times(2)).principal
+        verify(userRepository).existsByIdAndRole(targetId, User.Role.SUPER_ADMIN)
+    }
+
+    @Test
+    fun hasPermissionShouldReturnFalseIfPermissionIsLockAndUserIsSuperAdminButOwner() {
+        // GIVEN
+        val authentication = mock<Authentication>()
+        val user = User(
+                role = User.Role.SUPER_ADMIN
+        )
+        whenever(authentication.principal).thenReturn(user)
+
+        // WHEN
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, user.id, USER_TARGET_TYPE, LOCK_PERMISSION
+        )
+
+        // THEN
+        assertThat(hasPermission).isFalse()
+        verify(authentication, times(2)).principal
+    }
+
+    @Test
+    fun hasPermissionShouldReturnFalseIfPermissionIsLockAndUserIsSuperAdminButUserToLockIsSuperAdmin() {
+        // GIVEN
+        val authentication = mock<Authentication>()
+        val targetId = UUID.randomUUID()
+        whenever(authentication.principal).thenReturn(User(
+                role = User.Role.SUPER_ADMIN
+        ))
+        whenever(userRepository.existsByIdAndRole(targetId, User.Role.SUPER_ADMIN)).thenReturn(true)
+
+        // WHEN
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, targetId, USER_TARGET_TYPE, LOCK_PERMISSION
+        )
+
+        // THEN
+        assertThat(hasPermission).isFalse()
+        verify(authentication, times(2)).principal
+        verify(userRepository).existsByIdAndRole(targetId, User.Role.SUPER_ADMIN)
+    }
+
+    @Test
+    fun hasPermissionShouldReturnTrueIfPermissionIsLockAndUserIsAdmin() {
+        // GIVEN
+        val authentication = mock<Authentication>()
+        val targetId = UUID.randomUUID()
+        whenever(authentication.principal).thenReturn(User(
+                role = User.Role.ADMIN
+        ))
+
+        // WHEN
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, targetId, USER_TARGET_TYPE, LOCK_PERMISSION
+        )
+
+        // THEN
+        assertThat(hasPermission).isTrue()
+        verify(authentication, times(2)).principal
+        verify(userRepository).existsByIdAndRole(targetId, User.Role.SUPER_ADMIN)
+    }
+
+    @Test
+    fun hasPermissionShouldReturnTrueIfPermissionIsLockAndUserIsSuperAdmin() {
+        // GIVEN
+        val authentication = mock<Authentication>()
+        val targetId = UUID.randomUUID()
+        whenever(authentication.principal).thenReturn(User(
+                role = User.Role.SUPER_ADMIN
+        ))
+
+        // WHEN
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, targetId, USER_TARGET_TYPE, LOCK_PERMISSION
+        )
+
+        // THEN
+        assertThat(hasPermission).isTrue()
+        verify(authentication, times(2)).principal
+        verify(userRepository).existsByIdAndRole(targetId, User.Role.SUPER_ADMIN)
     }
 
     @Test

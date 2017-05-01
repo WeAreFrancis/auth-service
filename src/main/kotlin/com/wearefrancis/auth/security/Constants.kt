@@ -5,6 +5,7 @@ const val USER_TARGET_TYPE = "user"
 const val CREATE_PERMISSION = "create"
 const val DELETE_PERMISSION = "delete"
 const val ENABLE_PERMISSION = "enable"
+const val LOCK_PERMISSION = "lock"
 const val UPDATE_PERMISSION = "update"
 
 internal const val BEARER = "Bearer"

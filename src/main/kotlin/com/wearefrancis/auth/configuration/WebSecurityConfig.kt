@@ -1,5 +1,6 @@
 package com.wearefrancis.auth.configuration
 
+import com.wearefrancis.auth.repository.UserRepository
 import com.wearefrancis.auth.security.JwtAuthenticationEntryPoint
 import com.wearefrancis.auth.security.JwtAuthenticationFilter
 import com.wearefrancis.auth.security.JwtUserService
@@ -21,9 +22,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableWebSecurity
 open class WebSecurityConfig(
-        val jwtAuthenticationEntryPoint: JwtAuthenticationEntryPoint,
-        val jwtAuthenticationFilter: JwtAuthenticationFilter,
-        val jwtUserService: JwtUserService
+        private val jwtAuthenticationEntryPoint: JwtAuthenticationEntryPoint,
+        private val jwtAuthenticationFilter: JwtAuthenticationFilter,
+        private val jwtUserService: JwtUserService,
+        private val userRepository: UserRepository
 ) : WebSecurityConfigurerAdapter() {
     override fun configure(authenticationManagerBuilder: AuthenticationManagerBuilder) {
         authenticationManagerBuilder
@@ -49,5 +51,5 @@ open class WebSecurityConfig(
     open fun passwordEncoder(): BCryptPasswordEncoder = BCryptPasswordEncoder()
 
     @Bean
-    open fun permissionEvaluator(): PermissionEvaluator = UserPermissionEvaluator()
+    open fun permissionEvaluator(): PermissionEvaluator = UserPermissionEvaluator(userRepository)
 }
