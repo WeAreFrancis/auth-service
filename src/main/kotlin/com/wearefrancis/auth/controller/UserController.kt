@@ -4,14 +4,12 @@ import com.wearefrancis.auth.USERNAME_REGEX
 import com.wearefrancis.auth.UUID_REGEX
 import com.wearefrancis.auth.domain.User
 import com.wearefrancis.auth.dto.CreateUserDTO
+import com.wearefrancis.auth.dto.ReadUserByAdminDTO
 import com.wearefrancis.auth.dto.ReadUserDTO
 import com.wearefrancis.auth.dto.UpdateUserDTO
 import com.wearefrancis.auth.dto.mapper.ReadUserByAdminDTOMapper
 import com.wearefrancis.auth.dto.mapper.ReadUserByOwnerDTOMapper
-import com.wearefrancis.auth.security.CREATE_PERMISSION
-import com.wearefrancis.auth.security.DELETE_PERMISSION
-import com.wearefrancis.auth.security.UPDATE_PERMISSION
-import com.wearefrancis.auth.security.USER_TARGET_TYPE
+import com.wearefrancis.auth.security.*
 import com.wearefrancis.auth.service.UserService
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
@@ -40,6 +38,12 @@ class UserController(
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun delete(@PathVariable userId: UUID) {
         userService.delete(userId)
+    }
+
+    @PreAuthorize("hasPermission(#userId, '$USER_TARGET_TYPE', '$ENABLE_PERMISSION')")
+    @PutMapping("/{userId:$UUID_REGEX}/enable")
+    fun enable(@PathVariable userId: UUID): ReadUserByAdminDTO {
+        return userService.enable(userId)
     }
 
     @GetMapping("/{userId:$UUID_REGEX}")
