@@ -2,6 +2,11 @@ jwt:
   secret: g4t1V&7m9X3JA&zOkB71
   expiration: 86400
 
+mail:
+  address: ${SMTP_USER}
+  subject: Welcome on WeAreFrancis!
+  apiUrl: ${API_URL}
+
 spring:
   datasource:
     url: jdbc:postgresql://172.0.0.10/${DB_NAME}
@@ -14,3 +19,16 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  mail:
+    host: ${SMTP_HOST}
+    port: ${SMTP_PORT}
+    username: ${SMTP_USER}
+    password: ${SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          connectiontimeout: 15000
+          timeout: 15000
+          ssl:
+            enable: true

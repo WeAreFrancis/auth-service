@@ -20,6 +20,7 @@ class UserService(
         private val readUserByAdminDTOMapper: ReadUserByAdminDTOMapper,
         private val readUserByOwnerDTOMapper: ReadUserByOwnerDTOMapper,
         private val readUserByUserDTOMapper: ReadUserByUserDTOMapper,
+        private val tokenService: TokenService,
         private val userRepository: UserRepository
 ) {
     companion object {
@@ -53,7 +54,10 @@ class UserService(
         logger.info("User ${userCreated.username} created")
         return when (byAdmin) {
             true -> readUserByAdminDTOMapper.convert(userCreated)
-            false -> readUserByOwnerDTOMapper.convert(userCreated)
+            false -> {
+                tokenService.sendMail(userCreated)
+                readUserByOwnerDTOMapper.convert(userCreated)
+            }
         }
     }
 
