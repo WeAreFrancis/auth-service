@@ -1,10 +1,7 @@
 package com.wearefrancis.auth.service
 
 import com.wearefrancis.auth.domain.User
-import com.wearefrancis.auth.dto.CreateUserDTO
-import com.wearefrancis.auth.dto.ReadUserByAdminDTO
-import com.wearefrancis.auth.dto.ReadUserDTO
-import com.wearefrancis.auth.dto.UpdateUserDTO
+import com.wearefrancis.auth.dto.*
 import com.wearefrancis.auth.dto.mapper.ReadUserByAdminDTOMapper
 import com.wearefrancis.auth.dto.mapper.ReadUserByOwnerDTOMapper
 import com.wearefrancis.auth.dto.mapper.ReadUserByUserDTOMapper
@@ -27,6 +24,16 @@ class UserService(
 ) {
     companion object {
         val logger = LoggerFactory.getLogger(UserService::class.java)!!
+    }
+
+    fun changeRole(userId: UUID, userRoleDTO: WriteUserRoleDTO): ReadUserByAdminDTO {
+        val userToChangeRole = userRepository.findOne(userId) ?: throw EntityNotFoundException("User $userId not found")
+        val user = userToChangeRole.copy(
+                role = userRoleDTO.role
+        )
+        val userUpdated = userRepository.save(user)
+        logger.info("User ${userUpdated.username} is now ${userUpdated.role}")
+        return readUserByAdminDTOMapper.convert(userUpdated)
     }
 
     fun create(userDTO: CreateUserDTO, byAdmin: Boolean = false): ReadUserDTO {

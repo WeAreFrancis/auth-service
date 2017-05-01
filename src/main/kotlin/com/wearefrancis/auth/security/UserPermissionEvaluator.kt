@@ -23,6 +23,8 @@ class UserPermissionEvaluator(
         }
         return when (targetType) {
             USER_TARGET_TYPE -> when (permission) {
+                CHANGE_ROLE_PERMISSION -> currentUser!!.role == User.Role.SUPER_ADMIN
+                        && currentUser.id != targetId
                 CREATE_PERMISSION -> currentUser == null
                         || currentUser.role in User.Role.ADMIN..User.Role.SUPER_ADMIN
                 DELETE_PERMISSION -> currentUser!!.id == targetId

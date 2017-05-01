@@ -3,10 +3,7 @@ package com.wearefrancis.auth.controller
 import com.wearefrancis.auth.USERNAME_REGEX
 import com.wearefrancis.auth.UUID_REGEX
 import com.wearefrancis.auth.domain.User
-import com.wearefrancis.auth.dto.CreateUserDTO
-import com.wearefrancis.auth.dto.ReadUserByAdminDTO
-import com.wearefrancis.auth.dto.ReadUserDTO
-import com.wearefrancis.auth.dto.UpdateUserDTO
+import com.wearefrancis.auth.dto.*
 import com.wearefrancis.auth.dto.mapper.ReadUserByAdminDTOMapper
 import com.wearefrancis.auth.dto.mapper.ReadUserByOwnerDTOMapper
 import com.wearefrancis.auth.security.*
@@ -26,6 +23,11 @@ class UserController(
         private val readUserByOwnerDTOMapper: ReadUserByOwnerDTOMapper,
         private val userService: UserService
 ) {
+    @PreAuthorize("hasPermission(null, '$USER_TARGET_TYPE', '$CHANGE_ROLE_PERMISSION')")
+    @PutMapping("/{userId:$UUID_REGEX}/change-role")
+    fun changeRole(@PathVariable userId: UUID, @RequestBody @Valid userRoleDTO: WriteUserRoleDTO): ReadUserByAdminDTO
+            = userService.changeRole(userId, userRoleDTO)
+
     @PostMapping
     @PreAuthorize("hasPermission(null, '$USER_TARGET_TYPE', '$CREATE_PERMISSION')")
     @ResponseStatus(HttpStatus.CREATED)
