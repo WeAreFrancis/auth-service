@@ -182,6 +182,56 @@ class UserServiceTest {
     }
 
     @Test
+    fun enableShouldThrowEntityNotFoundExceptionIfTheUserThatHasTheGivenIdIsNotFound() {
+        // GIVEN
+        val userId = UUID.randomUUID()
+
+        try {
+            // WHEN
+            userService.enable(userId)
+
+            // THEN
+            fail()
+        } catch (exception: EntityNotFoundException) {
+            // THEN
+            assertThat(exception.message).isEqualTo("User $userId not found")
+            verify(userRepository).findOne(userId)
+        }
+    }
+
+    @Test
+    fun enableShouldEnableUser() {
+        // GIVEN
+        val user = User()
+        val readUserByAdminDTO = ReadUserByAdminDTO(
+                email = user.email,
+                username = user.username
+        )
+        whenever(userRepository.findOne(user.id)).thenReturn(user)
+        whenever(userRepository.save(any<User>())).then(fun (invocation): User {
+            val model = invocation.getArgumentAt(0, User::class.java)
+            assertThat(model.email).isEqualTo(user.email)
+            assertThat(model.enabled).isTrue()
+            assertThat(model.isAccountNonExpired).isEqualTo(user.isAccountNonExpired)
+            assertThat(model.isAccountNonLocked).isEqualTo(user.isAccountNonLocked)
+            assertThat(model.isCredentialsNonExpired).isEqualTo(user.isCredentialsNonExpired)
+            assertThat(model.password).isEqualTo(user.password)
+            assertThat(model.role).isEqualTo(user.role)
+            return model
+        })
+        whenever(readUserByAdminDTOMapper.convert(any<User>())).thenReturn(readUserByAdminDTO)
+
+        // WHEN
+        val readUserDTO = userService.enable(user.id)
+
+        // THEN
+        assertThat(readUserDTO).isSameAs(readUserByAdminDTO)
+        verify(userRepository).findOne(user.id)
+        verify(userRepository).save(any<User>())
+        verify(readUserByAdminDTOMapper).convert(any<User>())
+    }
+
+    @Test
     fun getByIdShouldThrowEntityNotFoundExceptionIfTheUserThatHasTheGivenIdIsNotFound() {
         // GIVEN
         val id = UUID.randomUUID()
