@@ -2,6 +2,7 @@ package com.wearefrancis.auth.service
 
 import com.wearefrancis.auth.domain.User
 import com.wearefrancis.auth.dto.CreateUserDTO
+import com.wearefrancis.auth.dto.ReadUserByAdminDTO
 import com.wearefrancis.auth.dto.ReadUserDTO
 import com.wearefrancis.auth.dto.UpdateUserDTO
 import com.wearefrancis.auth.dto.mapper.ReadUserByAdminDTOMapper
@@ -54,6 +55,14 @@ class UserService(
         }
         userRepository.delete(userId)
         logger.info("User $userId deleted")
+    }
+
+    fun enable(userId: UUID): ReadUserByAdminDTO {
+        val userToEnable = userRepository.findOne(userId) ?: throw EntityNotFoundException("User $userId not found")
+        val user = userToEnable.copy(
+                enabled = true
+        )
+        return readUserByAdminDTOMapper.convert(userRepository.save(user))
     }
 
     fun getById(userId: UUID, currentUser: User): ReadUserDTO {
