@@ -5,6 +5,7 @@ import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import com.wearefrancis.auth.domain.User
+import com.wearefrancis.auth.repository.UserRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assert.fail
 import org.junit.Before
@@ -14,10 +15,12 @@ import java.util.*
 
 class UserPermissionEvaluatorTest {
     private lateinit var userPermissionEvaluator: UserPermissionEvaluator
+    private lateinit var userRepository: UserRepository
 
     @Before
     fun setUp() {
-        userPermissionEvaluator = UserPermissionEvaluator()
+        userRepository = mock<UserRepository>()
+        userPermissionEvaluator = UserPermissionEvaluator(userRepository)
     }
 
     @Test
