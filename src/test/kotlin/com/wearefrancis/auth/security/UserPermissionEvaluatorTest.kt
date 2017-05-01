@@ -58,6 +58,94 @@ class UserPermissionEvaluatorTest {
     }
 
     @Test
+    fun hasPermissionShouldReturnFalseIfPermissionIsChangeRoleAndCurrentUserIsUser() {
+        // GIVEN
+        val authentication = mock<Authentication>()
+        whenever(authentication.principal).thenReturn(User())
+
+        // WHEN
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, UUID.randomUUID(), USER_TARGET_TYPE, CHANGE_ROLE_PERMISSION
+        )
+
+        // THEN
+        assertThat(hasPermission).isFalse()
+        verify(authentication, times(2)).principal
+    }
+
+    @Test
+    fun hasPermissionShouldReturnFalseIfPermissionIsChangeRoleAndCurrentUserIsOwner() {
+        // GIVEN
+        val authentication = mock<Authentication>()
+        val user = User()
+        whenever(authentication.principal).thenReturn(user)
+
+        // WHEN
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, user.id, USER_TARGET_TYPE, CHANGE_ROLE_PERMISSION
+        )
+
+        // THEN
+        assertThat(hasPermission).isFalse()
+        verify(authentication, times(2)).principal
+    }
+
+    @Test
+    fun hasPermissionShouldReturnFalseIfPermissionIsChangeRoleAndCurrentUserIsAdmin() {
+        // GIVEN
+        val authentication = mock<Authentication>()
+        whenever(authentication.principal).thenReturn(User(
+                role = User.Role.ADMIN
+        ))
+
+        // WHEN
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, UUID.randomUUID(), USER_TARGET_TYPE, CHANGE_ROLE_PERMISSION
+        )
+
+        // THEN
+        assertThat(hasPermission).isFalse()
+        verify(authentication, times(2)).principal
+    }
+
+    @Test
+    fun hasPermissionShouldReturnFalseIfPermissionIsChangeRoleAndCurrentUserIsSuperAdminButOwner() {
+        // GIVEN
+        val authentication = mock<Authentication>()
+        val user = User(
+                role = User.Role.SUPER_ADMIN
+        )
+        whenever(authentication.principal).thenReturn(user)
+
+        // WHEN
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, user.id, USER_TARGET_TYPE, CHANGE_ROLE_PERMISSION
+        )
+
+        // THEN
+        assertThat(hasPermission).isFalse()
+        verify(authentication, times(2)).principal
+    }
+
+    @Test
+    fun hasPermissionShouldReturnTrueIfPermissionIsChangeRoleAndCurrentUserIsSuperAdmin() {
+        // GIVEN
+        val authentication = mock<Authentication>()
+        whenever(authentication.principal).thenReturn(User(
+                role = User.Role.SUPER_ADMIN
+        ))
+
+        // WHEN
+        val hasPermission = userPermissionEvaluator.hasPermission(
+                authentication, UUID.randomUUID(), USER_TARGET_TYPE, CHANGE_ROLE_PERMISSION
+        )
+
+        // THEN
+        assertThat(hasPermission).isTrue()
+        verify(authentication, times(2)).principal
+    }
+
+    @Test
     fun hasPermissionShouldReturnFalseIfPermissionIsCreateAndCurrentUserIsUser() {
         // GIVEN
         val authentication = mock<Authentication>()

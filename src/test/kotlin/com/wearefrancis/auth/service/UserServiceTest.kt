@@ -46,6 +46,62 @@ class UserServiceTest {
     }
 
     @Test
+    fun changeRoleShouldThrowEntityNotFoundExceptionIfUserThatHasTheGivenIdIsNotFound() {
+        // GIVEN
+        val userId = UUID.randomUUID()
+        val userRoleDTO = WriteUserRoleDTO(
+                role = User.Role.USER
+        )
+
+        try {
+            // WHEN
+            userService.changeRole(userId, userRoleDTO)
+
+            // THEN
+            fail()
+        } catch (exception: EntityNotFoundException) {
+            // THEN
+            assertThat(exception.message).isEqualTo("User $userId not found")
+            verify(userRepository).findOne(userId)
+        }
+    }
+
+    @Test
+    fun changeRoleShouldChangeUserRole() {
+        // GIVEN
+        val user = User()
+        val userRoleDTO = WriteUserRoleDTO(
+                role = User.Role.SUPER_ADMIN
+        )
+        val readUserByAdminDTO = ReadUserByAdminDTO(
+                email = user.email,
+                username = user.username
+        )
+        whenever(userRepository.findOne(user.id)).thenReturn(user)
+        whenever(userRepository.save(any<User>())).then(fun (invocation): User {
+            val model = invocation.getArgumentAt(0, User::class.java)
+            assertThat(model.email).isEqualTo(user.email)
+            assertThat(model.enabled).isEqualTo(user.enabled)
+            assertThat(model.isAccountNonExpired).isEqualTo(user.isAccountNonExpired)
+            assertThat(model.isAccountNonLocked).isEqualTo(user.isAccountNonLocked)
+            assertThat(model.isCredentialsNonExpired).isEqualTo(user.isCredentialsNonExpired)
+            assertThat(model.password).isEqualTo(user.password)
+            assertThat(model.role).isEqualTo(userRoleDTO.role)
+            return model
+        })
+        whenever(readUserByAdminDTOMapper.convert(any<User>())).thenReturn(readUserByAdminDTO)
+
+        // WHEN
+        val readUserDTO = userService.changeRole(user.id, userRoleDTO)
+
+        // THEN
+        assertThat(readUserDTO).isSameAs(readUserByAdminDTO)
+        verify(userRepository).findOne(user.id)
+        verify(userRepository).save(any<User>())
+        verify(readUserByAdminDTOMapper).convert(any<User>())
+    }
+
+    @Test
     fun createShouldThrowObjectAlreadyExistsExceptionIfTheUsernameIsAlreadyUsed() {
         // GIVEN
         val createUserDTO = CreateUserDTO(
