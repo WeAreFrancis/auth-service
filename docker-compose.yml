@@ -1,0 +1,45 @@
+version: '2'
+
+networks:
+  auth:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.0.0.0/24
+          gateway: 172.0.0.1
+
+services:
+  postgres:
+    image: postgres:9.6.2
+    environment:
+      POSTGRES_USER: ${AUTH_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
+      POSTGRES_DB: auth
+    restart: always
+    volumes:
+      - ./data/postgres:/var/lib/postgres
+    networks:
+      auth:
+        ipv4_address: 172.0.0.10
+    ports:
+      - '5432'
+
+  auth:
+    build: .
+    environment:
+      API_URL: ${AUTH_API_URL}
+
+      POSTGRES_USER: ${AUTH_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
+      DB_NAME: auth
+
+      SMTP_HOST: ${AUTH_SMTP_HOST}
+      SMTP_PORT: ${AUTH_SMTP_PORT}
+      SMTP_USER: ${AUTH_SMTP_USER}
+      SMTP_PASSWORD: ${AUTH_SMTP_PASSWORD}
+    restart: always
+    networks:
+      auth:
+        ipv4_address: 172.0.0.20
+    ports:
+      - '8080'
