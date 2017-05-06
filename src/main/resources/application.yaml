@@ -9,7 +9,7 @@ mail:
 
 spring:
   datasource:
-    url: jdbc:postgresql://172.0.0.10/${DB_NAME}
+    url: jdbc:postgresql://${DB_HOST}/${DB_NAME}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
 
