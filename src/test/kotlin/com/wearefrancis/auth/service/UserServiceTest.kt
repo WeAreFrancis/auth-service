@@ -176,6 +176,7 @@ class UserServiceTest {
         verify(userRepository).existsByUsername(createUserDTO.username)
         verify(userRepository).existsByEmail(createUserDTO.email)
         verify(userRepository).save(any<User>())
+        verify(tokenService).sendMail(any<User>())
         verify(readUserByOwnerDTOMapper).convert(any<User>())
     }
 
