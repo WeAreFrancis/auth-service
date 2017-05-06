@@ -41,6 +41,7 @@ open class WebSecurityConfig(
                 .authorizeRequests()
                         .antMatchers(HttpMethod.GET, "/login").permitAll()
                         .antMatchers(HttpMethod.POST, "/users").permitAll()
+                        .antMatchers(HttpMethod.GET, "/users/activate/**").permitAll()
                         .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)

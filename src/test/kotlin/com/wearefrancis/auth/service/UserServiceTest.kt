@@ -4,6 +4,7 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
+import com.wearefrancis.auth.domain.Token
 import com.wearefrancis.auth.domain.User
 import com.wearefrancis.auth.dto.*
 import com.wearefrancis.auth.dto.mapper.ReadUserByAdminDTOMapper
@@ -11,6 +12,7 @@ import com.wearefrancis.auth.dto.mapper.ReadUserByOwnerDTOMapper
 import com.wearefrancis.auth.dto.mapper.ReadUserByUserDTOMapper
 import com.wearefrancis.auth.exception.EntityNotFoundException
 import com.wearefrancis.auth.exception.ObjectAlreadyExistsException
+import com.wearefrancis.auth.repository.TokenRepository
 import com.wearefrancis.auth.repository.UserRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assert.fail
@@ -27,6 +29,8 @@ class UserServiceTest {
     private lateinit var readUserByAdminDTOMapper: ReadUserByAdminDTOMapper
     private lateinit var readUserByOwnerDTOMapper: ReadUserByOwnerDTOMapper
     private lateinit var readUserByUserDTOMapper: ReadUserByUserDTOMapper
+    private lateinit var tokenRepository: TokenRepository
+    private lateinit var tokenService: TokenService
     private lateinit var userRepository: UserRepository
     private lateinit var userService: UserService
 
@@ -35,14 +39,64 @@ class UserServiceTest {
         readUserByAdminDTOMapper = mock<ReadUserByAdminDTOMapper>()
         readUserByOwnerDTOMapper = mock<ReadUserByOwnerDTOMapper>()
         readUserByUserDTOMapper = mock<ReadUserByUserDTOMapper>()
+        tokenRepository = mock<TokenRepository>()
+        tokenService = mock<TokenService>()
         userRepository = mock<UserRepository>()
         userService = UserService(
                 passwordEncoder = passwordEncoder,
                 readUserByAdminDTOMapper = readUserByAdminDTOMapper,
                 readUserByOwnerDTOMapper = readUserByOwnerDTOMapper,
                 readUserByUserDTOMapper = readUserByUserDTOMapper,
+                tokenRepository = tokenRepository,
+                tokenService = tokenService,
                 userRepository = userRepository
         )
+    }
+
+    @Test
+    fun activateShouldThrowEntityNotFoundExceptionIfTokenThatHasTheGivenValueIsNotFound() {
+        // GIVEN
+        val tokenValue = UUID.randomUUID()
+
+        try {
+            // WHEN
+            userService.activate(tokenValue)
+
+            // THEN
+            fail()
+        } catch (exception: EntityNotFoundException) {
+            // THEN
+            assertThat(exception.message).isEqualTo("Token $tokenValue not found")
+            verify(tokenRepository).findByValue(tokenValue)
+        }
+    }
+    
+    @Test
+    fun activateShouldEnableUserAndDeleteToken() {
+        // GIVEN
+        val user = User()
+        val token = Token(
+                user = user
+        )
+        whenever(tokenRepository.findByValue(token.value)).thenReturn(token)
+        whenever(userRepository.save(any<User>())).then(fun (invocation): User {
+            val savedUser = invocation.getArgumentAt(0, User::class.java)
+            assertThat(savedUser.email).isEqualTo(user.email)
+            assertThat(savedUser.enabled).isTrue()
+            assertThat(savedUser.isAccountNonExpired).isEqualTo(user.isAccountNonExpired)
+            assertThat(savedUser.isAccountNonLocked).isEqualTo(user.isAccountNonLocked)
+            assertThat(savedUser.isCredentialsNonExpired).isEqualTo(user.isCredentialsNonExpired)
+            assertThat(savedUser.password).isEqualTo(user.password)
+            assertThat(savedUser.role).isEqualTo(user.role)
+            return user
+        })
+        
+        // WHEN
+        userService.activate(token.value)
+        
+        // THEN
+        verify(tokenRepository).findByValue(token.value)
+        verify(userRepository).save(any<User>())
     }
 
     @Test
@@ -173,6 +227,7 @@ class UserServiceTest {
         verify(userRepository).existsByUsername(createUserDTO.username)
         verify(userRepository).existsByEmail(createUserDTO.email)
         verify(userRepository).save(any<User>())
+        verify(tokenService).sendMail(any<User>())
         verify(readUserByOwnerDTOMapper).convert(any<User>())
     }
 

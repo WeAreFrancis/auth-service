@@ -7,6 +7,7 @@ import com.wearefrancis.auth.dto.mapper.ReadUserByOwnerDTOMapper
 import com.wearefrancis.auth.dto.mapper.ReadUserByUserDTOMapper
 import com.wearefrancis.auth.exception.EntityNotFoundException
 import com.wearefrancis.auth.exception.ObjectAlreadyExistsException
+import com.wearefrancis.auth.repository.TokenRepository
 import com.wearefrancis.auth.repository.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -20,10 +21,22 @@ class UserService(
         private val readUserByAdminDTOMapper: ReadUserByAdminDTOMapper,
         private val readUserByOwnerDTOMapper: ReadUserByOwnerDTOMapper,
         private val readUserByUserDTOMapper: ReadUserByUserDTOMapper,
+        private val tokenService: TokenService,
+        private val tokenRepository: TokenRepository,
         private val userRepository: UserRepository
 ) {
     companion object {
         val logger = LoggerFactory.getLogger(UserService::class.java)!!
+    }
+
+    fun activate(tokenValue: UUID) {
+        val token = tokenRepository.findByValue(tokenValue)
+                ?: throw EntityNotFoundException("Token $tokenValue not found")
+        val user = token.user.copy(
+                enabled = true
+        )
+        userRepository.save(user)
+        tokenRepository.delete(token)
     }
 
     fun changeRole(userId: UUID, userRoleDTO: WriteUserRoleDTO): ReadUserByAdminDTO {
@@ -53,7 +66,10 @@ class UserService(
         logger.info("User ${userCreated.username} created")
         return when (byAdmin) {
             true -> readUserByAdminDTOMapper.convert(userCreated)
-            false -> readUserByOwnerDTOMapper.convert(userCreated)
+            false -> {
+                tokenService.sendMail(userCreated)
+                readUserByOwnerDTOMapper.convert(userCreated)
+            }
         }
     }
 
