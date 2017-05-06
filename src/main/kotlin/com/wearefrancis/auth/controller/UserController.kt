@@ -23,6 +23,10 @@ class UserController(
         private val readUserByOwnerDTOMapper: ReadUserByOwnerDTOMapper,
         private val userService: UserService
 ) {
+    @PutMapping("/activate/{tokenValue:$UUID_REGEX}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun activate(@PathVariable tokenValue: UUID) = userService.activate(tokenValue)
+
     @PreAuthorize("hasPermission(null, '$USER_TARGET_TYPE', '$CHANGE_ROLE_PERMISSION')")
     @PutMapping("/{userId:$UUID_REGEX}/change-role")
     fun changeRole(@PathVariable userId: UUID, @RequestBody @Valid userRoleDTO: WriteUserRoleDTO): ReadUserByAdminDTO

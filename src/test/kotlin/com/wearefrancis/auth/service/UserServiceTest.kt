@@ -11,6 +11,7 @@ import com.wearefrancis.auth.dto.mapper.ReadUserByOwnerDTOMapper
 import com.wearefrancis.auth.dto.mapper.ReadUserByUserDTOMapper
 import com.wearefrancis.auth.exception.EntityNotFoundException
 import com.wearefrancis.auth.exception.ObjectAlreadyExistsException
+import com.wearefrancis.auth.repository.TokenRepository
 import com.wearefrancis.auth.repository.UserRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assert.fail
@@ -27,6 +28,7 @@ class UserServiceTest {
     private lateinit var readUserByAdminDTOMapper: ReadUserByAdminDTOMapper
     private lateinit var readUserByOwnerDTOMapper: ReadUserByOwnerDTOMapper
     private lateinit var readUserByUserDTOMapper: ReadUserByUserDTOMapper
+    private lateinit var tokenRepository: TokenRepository
     private lateinit var tokenService: TokenService
     private lateinit var userRepository: UserRepository
     private lateinit var userService: UserService
@@ -36,6 +38,7 @@ class UserServiceTest {
         readUserByAdminDTOMapper = mock<ReadUserByAdminDTOMapper>()
         readUserByOwnerDTOMapper = mock<ReadUserByOwnerDTOMapper>()
         readUserByUserDTOMapper = mock<ReadUserByUserDTOMapper>()
+        tokenRepository = mock<TokenRepository>()
         tokenService = mock<TokenService>()
         userRepository = mock<UserRepository>()
         userService = UserService(
@@ -43,6 +46,7 @@ class UserServiceTest {
                 readUserByAdminDTOMapper = readUserByAdminDTOMapper,
                 readUserByOwnerDTOMapper = readUserByOwnerDTOMapper,
                 readUserByUserDTOMapper = readUserByUserDTOMapper,
+                tokenRepository = tokenRepository,
                 tokenService = tokenService,
                 userRepository = userRepository
         )
