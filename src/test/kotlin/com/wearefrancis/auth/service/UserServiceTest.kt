@@ -4,6 +4,7 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
+import com.wearefrancis.auth.domain.Token
 import com.wearefrancis.auth.domain.User
 import com.wearefrancis.auth.dto.*
 import com.wearefrancis.auth.dto.mapper.ReadUserByAdminDTOMapper
@@ -50,6 +51,52 @@ class UserServiceTest {
                 tokenService = tokenService,
                 userRepository = userRepository
         )
+    }
+
+    @Test
+    fun activateShouldThrowEntityNotFoundExceptionIfTokenThatHasTheGivenValueIsNotFound() {
+        // GIVEN
+        val tokenValue = UUID.randomUUID()
+
+        try {
+            // WHEN
+            userService.activate(tokenValue)
+
+            // THEN
+            fail()
+        } catch (exception: EntityNotFoundException) {
+            // THEN
+            assertThat(exception.message).isEqualTo("Token $tokenValue not found")
+            verify(tokenRepository).findByValue(tokenValue)
+        }
+    }
+    
+    @Test
+    fun activateShouldEnableUserAndDeleteToken() {
+        // GIVEN
+        val user = User()
+        val token = Token(
+                user = user
+        )
+        whenever(tokenRepository.findByValue(token.value)).thenReturn(token)
+        whenever(userRepository.save(any<User>())).then(fun (invocation): User {
+            val savedUser = invocation.getArgumentAt(0, User::class.java)
+            assertThat(savedUser.email).isEqualTo(user.email)
+            assertThat(savedUser.enabled).isTrue()
+            assertThat(savedUser.isAccountNonExpired).isEqualTo(user.isAccountNonExpired)
+            assertThat(savedUser.isAccountNonLocked).isEqualTo(user.isAccountNonLocked)
+            assertThat(savedUser.isCredentialsNonExpired).isEqualTo(user.isCredentialsNonExpired)
+            assertThat(savedUser.password).isEqualTo(user.password)
+            assertThat(savedUser.role).isEqualTo(user.role)
+            return user
+        })
+        
+        // WHEN
+        userService.activate(token.value)
+        
+        // THEN
+        verify(tokenRepository).findByValue(token.value)
+        verify(userRepository).save(any<User>())
     }
 
     @Test
