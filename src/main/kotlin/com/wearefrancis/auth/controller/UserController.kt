@@ -23,7 +23,7 @@ class UserController(
         private val readUserByOwnerDTOMapper: ReadUserByOwnerDTOMapper,
         private val userService: UserService
 ) {
-    @PutMapping("/activate/{tokenValue:$UUID_REGEX}")
+    @GetMapping("/activate/{tokenValue:$UUID_REGEX}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun activate(@PathVariable tokenValue: UUID) = userService.activate(tokenValue)
 
