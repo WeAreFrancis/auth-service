@@ -7,7 +7,7 @@ import javax.persistence.*
 @Entity
 @Table(name = "tokens")
 data class Token(
-        @OneToOne(optional = false, orphanRemoval = true)
+        @OneToOne(optional = false)
         val user: User = User(),
 
         @GeneratedValue(generator = "uuid2")
