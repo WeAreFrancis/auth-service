@@ -27,6 +27,8 @@ services:
   auth:
     build: .
     environment:
+      JWT_SECRET: ${AUTH_JWT_SECRET}
+
       API_URL: ${AUTH_API_URL}
 
       POSTGRES_USER: ${AUTH_POSTGRES_USER}
