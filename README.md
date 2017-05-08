@@ -8,6 +8,8 @@
 ```
 export AUTH_API_URL="http://172.0.0.20:8080"
 
+export AUTH_JWT_SECRET=my-secret
+
 export AUTH_POSTGRES_USER=user
 export AUTH_POSTGRES_PASSWORD=password
 

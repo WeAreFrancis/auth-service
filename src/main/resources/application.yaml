@@ -1,5 +1,5 @@
 jwt:
-  secret: g4t1V&7m9X3JA&zOkB71
+  secret: ${JWT_SECRET}
   expiration: 86400
 
 mail:
