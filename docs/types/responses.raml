@@ -1,0 +1,54 @@
+#%RAML 1.0
+
+types:
+  Error:
+    type: object
+    properties:
+      timestamp:
+        description: The timestamp of the request
+        type: number
+      status:
+        description: The HTTP error status
+        type: number
+      exception:
+        description: The class name of the exception that caused the error
+        type: string
+      message:
+        description: The message of the error
+        type: string
+      path:
+        description: The URI of the request
+        type: string
+
+  Jwt:
+    type: object
+    properties:
+      jwt:
+        description: The JWT
+        type: string
+
+  User:
+    type: object
+    properties:
+      email:
+        description: The email (only if you're admin or you're the user himself)
+        required: false
+        type: string
+      enabled:
+        description: True if the user is enabled, false otherwise (only if you're admin)
+        required: false
+        type: boolean
+      id:
+        description: The ID of the user
+        type: string
+      locked:
+        description: True if the user is locked, false otherwise (only if you're admin)
+        required: false
+        type: boolean
+      role:
+        description: The role of the user (only if you're admin or you're the user himself)
+        required: false
+        enum: [USER, ADMIN, SUPER_ADMIN]
+      username:
+        description: The username of the user
+        type: string

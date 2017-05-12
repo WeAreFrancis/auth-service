@@ -1,0 +1,478 @@
+get:
+  description: Returns current user
+  headers:
+    Authorization:
+      description: The JWT
+      type: string
+      example: Bearer my-jwt
+  responses:
+    200:
+      body:
+        application/json:
+          type: Response.User
+          example:
+            id: 636c76e7-a75d-4f2f-abd2-82eee12e087f
+            email: johndoe@my-domain.com
+            role: USER
+    401:
+      body:
+        application/json:
+          type: Response.Error
+          example:
+            timestamp: 1494680060971
+            status: 400
+            error: Unauthorized
+            exception: com.wearefrancis.auth.exception.BadCredentialsException
+            message: Bad credentials
+            path: /users
+post:
+  description: Creates an user (only anonymous user or admin allowed)
+  headers:
+    Authorization:
+      description: The JWT
+      type: string
+      example: Bearer my-jwt
+      required: false
+  body:
+    type: Request.CreateUser
+    example:
+      email: johndoe@my-domain.com
+      password: Azerty$76
+      username: johndoe
+  responses:
+    201:
+      body:
+        application/json:
+          type: Response.User
+          example:
+            id: 636c76e7-a75d-4f2f-abd2-82eee12e087f
+            email: johndoe@my-domain.com
+            role: USER
+            username: johndoe
+    403:
+      body:
+        application/json:
+          type: Response.Error
+          example:
+            timestamp: 1494680060971
+            status: 403
+            error: Forbidden
+            exception: org.springframework.security.access.AccessDeniedException
+            message: Access denied
+            path: /users
+    409:
+      body:
+        application/json:
+          type: Response.Error
+          example:
+            timestamp: 1494680060971
+            status: 409
+            error: Conflict
+            exception: com.wearefrancis.auth.exception.ObjectAlreadyExistsException
+            message: Username johndoe already used
+            path: /users
+/activate/{tokenValue}:
+  get:
+    description: Activates an user
+    uriParameter:
+      tokenValue:
+        type: string
+    responses:
+      204:
+      404:
+        body:
+          application/json:
+            type: Response.Error
+            example:
+              timestamp: 1494680060971
+              status: 404
+              error: Not Found
+              exception: com.wearefrancis.auth.exception.EntityNotFoundException
+              message: Token 636c76e7-a75d-4f2f-abd2-82eee12e087f not found
+              path: /users/activate/636c76e7-a75d-4f2f-abd2-82eee12e087f
+/{username}:
+  baseUriParameter:
+    username:
+      type: string
+  get:
+    description: Returns the user by its username
+    headers:
+        description: The JWT
+        type: string
+        example: Bearer my-jwt
+    responses:
+      200:
+        body:
+          application/json:
+            type: Response.User
+            example:
+              id: 636c76e7-a75d-4f2f-abd2-82eee12e087f
+              email: johndoe@my-domain.com
+              password: Azerty$76
+              username: johndoe
+      401:
+        body:
+          application/json:
+            type: Response.Error
+            example:
+              timestamp: 1494680060971
+              status: 400
+              error: Unauthorized
+              exception: com.wearefrancis.auth.exception.BadCredentialsException
+              message: Bad credentials
+              path: /users/johndoe
+      404:
+        body:
+          application/json:
+            type: Response.Error
+            example:
+              timestamp: 1494680060971
+              status: 404
+              error: Not Found
+              exception: com.wearefrancis.auth.exception.EntityNotFoundException
+              message: User johndoe not found
+              path: /users/johndoe
+/{userId}:
+  baseUriParameter:
+    userId:
+      type: string
+  get:
+    description: Returns the user by its id
+        description: The JWT
+        type: string
+        example: Bearer my-jwt
+    responses:
+      200:
+        body:
+          application/json:
+            type: Response.User
+            example:
+              id: 636c76e7-a75d-4f2f-abd2-82eee12e087f
+              email: johndoe@my-domain.com
+              password: Azerty$76
+              username: johndoe
+      401:
+        body:
+          application/json:
+            type: Response.Error
+            example:
+              timestamp: 1494680060971
+              status: 400
+              error: Unauthorized
+              exception: com.wearefrancis.auth.exception.BadCredentialsException
+              message: Bad credentials
+              path: /users/636c76e7-a75d-4f2f-abd2-82eee12e087f
+      404:
+        body:
+          application/json:
+            type: Response.Error
+            example:
+              timestamp: 1494680060971
+              status: 404
+              error: Not Found
+              exception: com.wearefrancis.auth.exception.EntityNotFoundException
+              message: User 636c76e7-a75d-4f2f-abd2-82eee12e087f not found
+              path: /users/636c76e7-a75d-4f2f-abd2-82eee12e087f
+  put:
+    description: Updates an user
+    headers:
+      Authorization:
+        description: The JWT
+        type: string
+        example: Bearer my-jwt
+        required: false
+    body:
+      type: Request.UpdateUser
+      example:
+        email: johndoe@my-domain.com
+        password: Azerty$76
+    responses:
+      201:
+        body:
+          application/json:
+            type: Response.User
+            example:
+              id: 636c76e7-a75d-4f2f-abd2-82eee12e087f
+              email: johndoe@my-domain.com
+              role: USER
+              username: johndoe
+      403:
+        body:
+          application/json:
+            type: Response.Error
+            example:
+              timestamp: 1494680060971
+              status: 403
+              error: Forbidden
+              exception: org.springframework.security.access.AccessDeniedException
+              message: Access denied
+              path: /users/636c76e7-a75d-4f2f-abd2-82eee12e087f
+      404:
+        body:
+          application/json:
+            type: Response.Error
+            example:
+              timestamp: 1494680060971
+              status: 404
+              error: Not Found
+              exception: com.wearefrancis.auth.exception.EntityNotFoundException
+              message: User 636c76e7-a75d-4f2f-abd2-82eee12e087f not found
+              path: /users/636c76e7-a75d-4f2f-abd2-82eee12e087f
+      409:
+        body:
+          application/json:
+            type: Response.Error
+            example:
+              timestamp: 1494680060971
+              status: 409
+              error: Conflict
+              exception: com.wearefrancis.auth.exception.ObjectAlreadyExistsException
+              message: Username johndoe already used
+              path: /users/636c76e7-a75d-4f2f-abd2-82eee12e087f
+  delete:
+    description: Deletes an user (only user itself or super adin allowed)
+    headers:
+      Authorization:
+        description: The JWT
+        type: string
+        example: Bearer my-jwt
+    responses:
+      204:
+      401:
+        body:
+          application/json:
+            type: Response.Error
+            example:
+              timestamp: 1494680060971
+              status: 400
+              error: Unauthorized
+              exception: com.wearefrancis.auth.exception.BadCredentialsException
+              message: Bad credentials
+              path: /users/636c76e7-a75d-4f2f-abd2-82eee12e087f
+      403:
+        body:
+          application/json:
+            type: Response.Error
+            example:
+              timestamp: 1494680060971
+              status: 403
+              error: Forbidden
+              exception: org.springframework.security.access.AccessDeniedException
+              message: Access denied
+              path: /users/636c76e7-a75d-4f2f-abd2-82eee12e087f
+  /change-role:
+    put:
+      description: Changes the role of an user (only super admin allowed)
+      headers:
+        Authorization:
+          description: The JWT
+          type: string
+          example: Bearer my-jwt
+      body:
+        type: Request.ChangeRole
+        example:
+          role: ADMIN
+      responses:
+        200:
+          body:
+            application/json:
+              type: Response.User
+              example:
+                id: 636c76e7-a75d-4f2f-abd2-82eee12e087f
+                email: johndoe@my-domain.com
+                enabled: true
+                locked: false
+                role: ADMIN
+                username: johndoe
+        401:
+          body:
+            application/json:
+              type: Response.Error
+              example:
+                timestamp: 1494680060971
+                status: 400
+                error: Unauthorized
+                exception: com.wearefrancis.auth.exception.BadCredentialsException
+                message: Bad credentials
+                path: /users/636c76e7-a75d-4f2f-abd2-82eee12e087f/change-role
+        403:
+          body:
+            application/json:
+              type: Response.Error
+              example:
+                timestamp: 1494680060971
+                status: 403
+                error: Forbidden
+                exception: org.springframework.security.access.AccessDeniedException
+                message: Access denied
+                path: /users/636c76e7-a75d-4f2f-abd2-82eee12e087f/change-role
+        404:
+          body:
+            application/json:
+              type: Response.Error
+              example:
+                timestamp: 1494680060971
+                status: 404
+                error: Not Found
+                exception: com.wearefrancis.auth.exception.EntityNotFoundException
+                message: User 636c76e7-a75d-4f2f-abd2-82eee12e087f not found
+                path: /users/636c76e7-a75d-4f2f-abd2-82eee12e087f/change-role
+  /enable:
+    put:
+      description: Enables an user (only admin allowed)
+      headers:
+        Authorization:
+          description: The JWT
+          type: string
+          example: Bearer my-jwt
+      responses:
+        200:
+          body:
+            application/json:
+              type: Response.User
+              example:
+                id: 636c76e7-a75d-4f2f-abd2-82eee12e087f
+                email: johndoe@my-domain.com
+                enabled: true
+                locked: false
+                role: ADMIN
+                username: johndoe
+        401:
+          body:
+            application/json:
+              type: Response.Error
+              example:
+                timestamp: 1494680060971
+                status: 400
+                error: Unauthorized
+                exception: com.wearefrancis.auth.exception.BadCredentialsException
+                message: Bad credentials
+                path: /users/636c76e7-a75d-4f2f-abd2-82eee12e087f/enable
+        403:
+          body:
+            application/json:
+              type: Response.Error
+              example:
+                timestamp: 1494680060971
+                status: 403
+                error: Forbidden
+                exception: org.springframework.security.access.AccessDeniedException
+                message: Access denied
+                path: /users/636c76e7-a75d-4f2f-abd2-82eee12e087f/enable
+        404:
+          body:
+            application/json:
+              type: Response.Error
+              example:
+                timestamp: 1494680060971
+                status: 404
+                error: Not Found
+                exception: com.wearefrancis.auth.exception.EntityNotFoundException
+                message: User 636c76e7-a75d-4f2f-abd2-82eee12e087f not found
+                path: /users/636c76e7-a75d-4f2f-abd2-82eee12e087f/enable
+  /lock:
+    put:
+      description: Locks an user (only admin allowed)
+      headers:
+        Authorization:
+          description: The JWT
+          type: string
+          example: Bearer my-jwt
+      responses:
+        200:
+          body:
+            application/json:
+              type: Response.User
+              example:
+                id: 636c76e7-a75d-4f2f-abd2-82eee12e087f
+                email: johndoe@my-domain.com
+                enabled: true
+                locked: false
+                role: ADMIN
+                username: johndoe
+        401:
+          body:
+            application/json:
+              type: Response.Error
+              example:
+                timestamp: 1494680060971
+                status: 400
+                error: Unauthorized
+                exception: com.wearefrancis.auth.exception.BadCredentialsException
+                message: Bad credentials
+                path: /users/636c76e7-a75d-4f2f-abd2-82eee12e087f/lock
+        403:
+          body:
+            application/json:
+              type: Response.Error
+              example:
+                timestamp: 1494680060971
+                status: 403
+                error: Forbidden
+                exception: org.springframework.security.access.AccessDeniedException
+                message: Access denied
+                path: /users/636c76e7-a75d-4f2f-abd2-82eee12e087f/lock
+        404:
+          body:
+            application/json:
+              type: Response.Error
+              example:
+                timestamp: 1494680060971
+                status: 404
+                error: Not Found
+                exception: com.wearefrancis.auth.exception.EntityNotFoundException
+                message: User 636c76e7-a75d-4f2f-abd2-82eee12e087f not found
+                path: /users/636c76e7-a75d-4f2f-abd2-82eee12e087f/lock
+  /unlock:
+    put:
+      description: Unlocks an user (only admin allowed)
+      headers:
+        Authorization:
+          description: The JWT
+          type: string
+          example: Bearer my-jwt
+      responses:
+        200:
+          body:
+            application/json:
+              type: Response.User
+              example:
+                id: 636c76e7-a75d-4f2f-abd2-82eee12e087f
+                email: johndoe@my-domain.com
+                enabled: true
+                locked: false
+                role: ADMIN
+                username: johndoe
+        401:
+          body:
+            application/json:
+              type: Response.Error
+              example:
+                timestamp: 1494680060971
+                status: 400
+                error: Unauthorized
+                exception: com.wearefrancis.auth.exception.BadCredentialsException
+                message: Bad credentials
+                path: /users/636c76e7-a75d-4f2f-abd2-82eee12e087f/unlock
+        403:
+          body:
+            application/json:
+              type: Response.Error
+              example:
+                timestamp: 1494680060971
+                status: 403
+                error: Forbidden
+                exception: org.springframework.security.access.AccessDeniedException
+                message: Access denied
+                path: /users/636c76e7-a75d-4f2f-abd2-82eee12e087f/unlock
+        404:
+          body:
+            application/json:
+              type: Response.Error
+              example:
+                timestamp: 1494680060971
+                status: 404
+                error: Not Found
+                exception: com.wearefrancis.auth.exception.EntityNotFoundException
+                message: User 636c76e7-a75d-4f2f-abd2-82eee12e087f not found
+                path: /users/636c76e7-a75d-4f2f-abd2-82eee12e087f/unlock

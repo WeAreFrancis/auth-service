@@ -1,0 +1,31 @@
+#%RAML 1.0
+
+types:
+  ChangeRole:
+    type: object
+    properties:
+      role:
+        enum: [USER, ADMIN, SUPER_ADMIN]
+
+  CreateUser:
+    type: object
+    properties:
+      email:
+        description: The email (must be valid)
+        type: string
+      password:
+        description: The password (must contain at least one upper case letter, one lower case letter, one digit and one special character)
+        type: string
+      username:
+        description: The username (must contain only letters and digits and have length between 3 and 50)
+        type: string
+
+  UpdateUser:
+    type: object
+    properties:
+      email:
+        description: The email (must be valid)
+        type: string
+      password:
+        description: The password (must contain at least one upper case letter, one lower case letter, one digit and one special character)
+        type: string

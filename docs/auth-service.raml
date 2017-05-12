@@ -1,0 +1,12 @@
+#%RAML 1.0
+
+title: WeAreFrancis - Auth Service
+version: 1.0.x
+mediaType: application/json
+
+uses:
+  Request: types/requests.raml
+  Response: types/responses.raml
+
+/login: !include endpoints/login.raml
+/users: !include endpoints/users.raml

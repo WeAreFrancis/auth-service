@@ -1,0 +1,28 @@
+get:
+  description: Get JWT
+  queryParameters:
+    username:
+      description: The username
+      type: string
+    password:
+      description: The password
+      type: string
+
+  responses:
+    200:
+      body:
+        application/json:
+          type: Response.Jwt
+          example:
+            jwt: "my-jwt"
+    401:
+      body:
+        application/json:
+          type: Response.Error
+          example:
+            timestamp: 1494680060971
+            status: 400
+            error: Unauthorized
+            exception: com.wearefrancis.auth.exception.BadCredentialsException
+            message: Bad credentials
+            path: /login
