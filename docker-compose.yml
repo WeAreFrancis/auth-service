@@ -9,32 +9,12 @@ networks:
           gateway: 172.0.0.1
 
 services:
-  postgres:
-    image: postgres:9.6.2
-    environment:
-      POSTGRES_USER: ${AUTH_POSTGRES_USER}
-      POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
-      POSTGRES_DB: auth
-    restart: always
-    volumes:
-      - ./data/postgres:/var/lib/postgres
-    networks:
-      auth:
-        ipv4_address: 172.0.0.10
-    ports:
-      - '5432'
-
-  auth:
+  auth-service:
     build: .
     environment:
       JWT_SECRET: ${AUTH_JWT_SECRET}
 
       API_URL: ${AUTH_API_URL}
-
-      POSTGRES_USER: ${AUTH_POSTGRES_USER}
-      POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
-      DB_NAME: auth
-      DB_HOST: 172.0.0.10
 
       SMTP_HOST: ${AUTH_SMTP_HOST}
       SMTP_PORT: ${AUTH_SMTP_PORT}
@@ -43,6 +23,8 @@ services:
     restart: always
     networks:
       auth:
-        ipv4_address: 172.0.0.20
+        ipv4_address: 172.0.0.10
     ports:
       - '8080'
+    volumes:
+      - ./data/pgsql:/var/lib/pgsql
