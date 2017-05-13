@@ -22,14 +22,13 @@ open class TokenService(
         private val templateEngine: TemplateEngine
 ) {
     companion object {
-        val logger = LoggerFactory.getLogger(TokenService::class.java)
+        val logger = LoggerFactory.getLogger(TokenService::class.java)!!
     }
 
     open fun sendMail(user: User) {
-        val token = Token(
+        val token = tokenRepository.save(Token(
                 user = user
-        )
-        val savedToken = tokenRepository.save(token)
+        ))
         logger.info("Token ${token.value} for user ${user.username} created")
         try {
             mailSender.send(fun (mimeMessage) {
@@ -39,7 +38,7 @@ open class TokenService(
                 messageHelper.setSubject(subject)
 
                 val context = Context()
-                context.setVariable(MAIL_TEMPLATE_URL, "$apiUrl/users/activate/${savedToken.value}")
+                context.setVariable(MAIL_TEMPLATE_URL, "$apiUrl/users/activate/${token.value}")
                 context.setVariable(MAIL_TEMPLATE_USERNAME, user.username)
                 val message = templateEngine.process(MAIL_TEMPLATE_NAME, context)
                 messageHelper.setText(message)
