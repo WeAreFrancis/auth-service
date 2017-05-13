@@ -6,13 +6,8 @@
 
 ## Run
 ```
-export AUTH_API_URL="http://172.0.0.20:8080"
-
+export AUTH_API_URL="http://172.0.0.10:8080"
 export AUTH_JWT_SECRET=my-secret
-
-export AUTH_POSTGRES_USER=user
-export AUTH_POSTGRES_PASSWORD=password
-
 export AUTH_SMTP_HOST=hostname
 export AUTH_SMTP_PORT=port
 export AUTH_SMTP_USERNAME=username
