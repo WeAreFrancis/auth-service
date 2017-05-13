@@ -6,7 +6,7 @@
 
     <groupId>com.wearefrancis</groupId>
     <artifactId>auth-service</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 
     <properties>
         <assertj.java8.version>1.0.0m1</assertj.java8.version>
