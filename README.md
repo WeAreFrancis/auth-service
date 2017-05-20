@@ -19,3 +19,6 @@ mvn spring-boot:run  \
         -DSMTP_PORT=smtp-port \
         -DSMTP_PASSWORD=my-password
 ```
+
+## API Reference
+https://wearefrancis.github.io/auth-service/
