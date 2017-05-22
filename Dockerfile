@@ -13,11 +13,7 @@ RUN yum install -y postgresql96 postgresql96-server postgresql96-contrib java-1.
 VOLUME ["/etc/pgsql", "/var/lib/pgsql"]
 
 USER root
+ADD entrypoint.sh /entrypoint.sh
 ADD target/auth-service.jar /app/auth-service.jar
-ENTRYPOINT mkdir -p /var/lib/pgsql/9.6/data/$DB_NAME \
-    && chown -R postgres:postgres /var/lib/pgsql/9.6/data/$DB_NAME \
-    && (su postgres -c "/usr/pgsql-9.6/bin/initdb -D /var/lib/pgsql/9.6/data/$DB_NAME --auth-host=md5 \
-    && /usr/pgsql-9.6/bin/pg_ctl -D /var/lib/pgsql/9.6/data/$DB_NAME start -w \
-    && psql -c \"CREATE USER $POSTGRES_USER WITH SUPERUSER PASSWORD '$POSTGRES_PASSWORD';\" \
-    && createdb -O $POSTGRES_USER $DB_NAME") \
-    && java -jar /app/auth-service.jar
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT /entrypoint.sh
